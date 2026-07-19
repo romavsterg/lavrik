@@ -1,0 +1,16 @@
+.service-item {
+  border: 1px solid #e5e5e5;
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+}
+
+.service-item h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+}
+
+.service-item p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #444;
+}
