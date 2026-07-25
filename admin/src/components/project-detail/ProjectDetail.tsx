@@ -190,7 +190,7 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
               ref={fileInputRef}
               type="file"
               accept="image/*"
-              onChange={(e) => setUploadError('')}
+              onChange={() => setUploadError('')}
               className="w-full px-3 py-2 border border-[#e5e5e5] rounded mb-3"
             />
             <button
