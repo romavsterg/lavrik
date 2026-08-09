@@ -1,0 +1,35 @@
+.cv-page {
+  padding: 1.5rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.cv-page h2 {
+  font-size: 40px;
+  margin: 0 0 15px;
+}
+
+.cv-layout {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.cv-image {
+  width: 200px;
+  height: auto;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.cv-text h3 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin: 0 0 0.75rem;
+}
+
+.cv-text p {
+  margin: 0;
+  color: #333;
+  line-height: 1.5;
+}

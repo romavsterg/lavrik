@@ -1,10 +1,5 @@
 import type { Route } from "../+types/home";
-import { useState, useEffect } from 'react';
-import HeroSection from '~/components/hero-section';
-import ProjectCard from '~/components/project-card';
-import type { Project } from '~/components/project-card';
-import { getProjects } from '~/api';
-import './home.css';
+import Carousel from '~/components/carousel';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -13,67 +8,12 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
-
-  const loadProjects = async () => {
-    setLoading(true);
-    try {
-      const data = await getProjects(6, page);
-      setProjects(data.items);
-      setTotalPages(data.totalPages);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadProjects();
-  }, [page]);
-
-  return <main>
-    <HeroSection />
-
-    <section className="featured">
-      <h2>Избранные проекты</h2>
-
-      {loading ? (
-        <p>Загрузка...</p>
-      ) : (
-        <>
-          <div className="project-list">
-            {projects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
-          </div>
-
-          {totalPages > 1 && (
-            <div className="pagination">
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-4 py-2 border border-[#e5e5e5] rounded hover:bg-gray-50 disabled:opacity-50"
-              >
-                Назад
-              </button>
-              <span className="px-4 py-2">
-                {page} / {totalPages}
-              </span>
-              <button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="px-4 py-2 border border-[#e5e5e5] rounded hover:bg-gray-50 disabled:opacity-50"
-              >
-                Вперед
-              </button>
-            </div>
-          )}
-        </>
-      )}
+  return <main className="px-6 max-w-[960px] mx-auto py-6">
+    <section className="mt-8 relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen">
+      <Carousel />
     </section>
+    <p className="mt-6 border-b-4 border-[#5e5e5e] h-12 w-fit ml-auto mr-auto block font-thin" style={{ fontSize: '36px', textAlign: 'center', color: '#000' }}>
+      <span style={{ color: 'rgb(139, 0, 0)' }}>Н</span>АТАЛЬЯ <span style={{ color: 'rgb(139, 0, 0)' }}>Л</span>АВРИК
+    </p>
   </main>;
 }
