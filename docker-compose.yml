@@ -1,5 +1,7 @@
 services:
   frontend:
+    profiles:
+      - app
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -20,6 +22,8 @@ services:
       - ./backend/database.sqlite:/app/database.sqlite
 
   admin:
+    profiles:
+      - app
     build:
       context: ./admin
       dockerfile: Dockerfile
@@ -36,5 +40,3 @@ services:
       - "80:80"
     depends_on:
       - backend
-      - frontend
-      - admin
