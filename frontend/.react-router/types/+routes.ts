@@ -65,11 +65,11 @@ type RouteFiles = {
 };
 
 type RouteModules = {
-  "root": typeof import("./app/root.tsx");
-  "routes/home/index": typeof import("./app/routes/home/index.tsx");
-  "routes/cv/index": typeof import("./app/routes/cv/index.tsx");
-  "routes/portfolio/index": typeof import("./app/routes/portfolio/index.tsx");
-  "routes/services/index": typeof import("./app/routes/services/index.tsx");
-  "routes/contacts/index": typeof import("./app/routes/contacts/index.tsx");
-  "routes/project/index": typeof import("./app/routes/project/index.tsx");
+  "root": typeof import("./src/root.tsx");
+  "routes/home/index": typeof import("./src/routes/home/index.tsx");
+  "routes/cv/index": typeof import("./src/routes/cv/index.tsx");
+  "routes/portfolio/index": typeof import("./src/routes/portfolio/index.tsx");
+  "routes/services/index": typeof import("./src/routes/services/index.tsx");
+  "routes/contacts/index": typeof import("./src/routes/contacts/index.tsx");
+  "routes/project/index": typeof import("./src/routes/project/index.tsx");
 };

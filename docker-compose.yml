@@ -4,9 +4,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
-    depends_on:
-      - backend
+      - "4173:4173"
 
   backend:
     build:
@@ -18,15 +16,15 @@ services:
       - ./backend/.env
     environment:
       - NODE_ENV=production
+    volumes:
+      - ./backend/database.sqlite:/app/database.sqlite
 
   admin:
     build:
       context: ./admin
       dockerfile: Dockerfile
     ports:
-      - "4173:4173"
-    depends_on:
-      - backend
+      - "4174:4173"
 
   nginx:
     profiles:
@@ -38,3 +36,5 @@ services:
       - "80:80"
     depends_on:
       - backend
+      - frontend
+      - admin

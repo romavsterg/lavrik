@@ -1,15 +1,8 @@
-import type { Route } from "../+types/project";
 import { useState, useEffect } from 'react';
-import { getProject, getProjectImages } from '~/api';
-import { useParams } from "react-router";
-import ProjectImagesGrid from '~/components/project/project-images-grid';
-import ProjectImageModal from '~/components/project/project-image-modal';
-
-export function meta({ params }: Route.MetaArgs) {
-  return [
-    { title: `Проект ${params.id}` },
-  ];
-}
+import { getProject, getProjectImages } from '../../api';
+import { useParams } from 'react-router-dom';
+import ProjectImagesGrid from '../../components/project/project-images-grid';
+import ProjectImageModal from '../../components/project/project-image-modal';
 
 export default function Project() {
   const { id } = useParams();

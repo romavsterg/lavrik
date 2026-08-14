@@ -1,11 +1,4 @@
-import type { Route } from "../+types/home";
-import Carousel from '~/components/carousel';
-
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "Наталия Лаврик" },
-  ];
-}
+import Carousel from '../../components/carousel';
 
 export default function Home() {
   return <main className="px-6 max-w-[960px] mx-auto py-6">

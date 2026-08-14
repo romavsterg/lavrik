@@ -1,13 +1,4 @@
-// import type { Route } from "../+types/contacts";
-
-import type { Route } from "../cv/+types";
 import './cv.css';
-
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "Резюме" },
-  ];
-}
 
 export default function CV() {
   return <div className="cv-page">

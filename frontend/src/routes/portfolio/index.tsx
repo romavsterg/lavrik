@@ -1,14 +1,7 @@
-import type { Route } from "../+types/portfolio";
 import { useState, useEffect } from 'react';
-import ProjectCard from '~/components/project/project-card';
-import type { Project } from '~/components/project/project-card';
-import { getProjects } from '~/api';
-
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "Портфолио" },
-  ];
-}
+import ProjectCard from '../../components/project/project-card';
+import type { Project } from '../../components/project/project-card';
+import { getProjects } from '../../api';
 
 export default function Portfolio() {
   const [projects, setProjects] = useState<Project[]>([]);

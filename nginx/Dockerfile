@@ -28,7 +28,7 @@ COPY --from=frontend-builder /app/build/client /usr/share/nginx/html
 
 COPY --from=admin-builder /app/dist /usr/share/nginx/html/admin
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
