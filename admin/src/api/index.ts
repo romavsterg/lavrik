@@ -9,5 +9,6 @@ export {
   deleteProject,
   addImage,
   removeImage,
+  renameImage,
   type Project,
 } from './projects';

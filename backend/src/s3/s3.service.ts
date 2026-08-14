@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import {
+  CopyObjectCommand,
   DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
@@ -62,6 +63,23 @@ export class S3Service {
         Key: key,
       }),
     );
+  }
+
+  async rename(oldKey: string, newKey: string) {
+    const copySource = `${this.bucket}/${oldKey
+      .split('/')
+      .map((part) => encodeURIComponent(part))
+      .join('/')}`;
+
+    await this.s3.send(
+      new CopyObjectCommand({
+        Bucket: this.bucket,
+        CopySource: copySource,
+        Key: newKey,
+      }),
+    );
+
+    await this.delete(oldKey);
   }
 
   async overwrite(key: string, buffer: Buffer, contentType: string) {

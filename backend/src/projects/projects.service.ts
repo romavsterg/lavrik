@@ -98,6 +98,17 @@ export class ProjectsService {
     return this.repository.update(id, { imgPaths: newPaths });
   }
 
+  async renameImage(id: number, oldKey: string, newKey: string) {
+    const project = await this.repository.findOneBy({ id });
+    if (!project) return null;
+
+    const newPaths = project.imgPaths.map((p) => (p === oldKey ? newKey : p));
+
+    await this.s3Service.rename(oldKey, newKey);
+
+    return this.repository.update(id, { imgPaths: newPaths });
+  }
+
   remove(id: number) {
     return this.repository.delete(id);
   }

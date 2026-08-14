@@ -47,6 +47,12 @@ export const removeImage = (id: number, key: string) =>
     body: JSON.stringify({ key }),
   });
 
+export const renameImage = (id: number, oldKey: string, newKey: string) =>
+  fetch(`/projects/${id}/images`, {
+    method: 'PUT',
+    body: JSON.stringify({ oldKey, newKey }),
+  });
+
 export const getProjectImageUrls = (id: number) =>
   fetch(`/projects/${id}/images`, {
     method: 'GET',

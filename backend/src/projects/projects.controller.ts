@@ -63,6 +63,16 @@ export class ProjectsController {
     return this.projectsService.removeImage(Number(id), key);
   }
 
+  @Put(':id/images')
+  @UseGuards(AuthGuard)
+  renameImage(
+    @Param('id') id: string,
+    @Body('oldKey') oldKey: string,
+    @Body('newKey') newKey: string,
+  ) {
+    return this.projectsService.renameImage(Number(id), oldKey, newKey);
+  }
+
   @Delete(':id')
   @UseGuards(AuthGuard)
   remove(@Param('id') id: string) {

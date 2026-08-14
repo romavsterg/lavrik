@@ -13,7 +13,10 @@ export const getDownloadUrl = (key: string) =>
   });
 
 export const deleteFile = (key: string) =>
+{
+  console.log(key)
   fetch('/files', {
     method: 'DELETE',
     body: JSON.stringify({ key }),
   });
+}

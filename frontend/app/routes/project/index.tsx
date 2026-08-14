@@ -2,6 +2,8 @@ import type { Route } from "../+types/project";
 import { useState, useEffect } from 'react';
 import { getProject, getProjectImages } from '~/api';
 import { useParams } from "react-router";
+import ProjectImagesGrid from '~/components/project/project-images-grid';
+import ProjectImageModal from '~/components/project/project-image-modal';
 
 export function meta({ params }: Route.MetaArgs) {
   return [
@@ -13,6 +15,8 @@ export default function Project() {
   const { id } = useParams();
   const [project, setProject] = useState<any>(null);
   const [images, setImages] = useState<string[]>([]);
+  const [showAllImages, setShowAllImages] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,6 +28,7 @@ export default function Project() {
         ]);
         setProject(projectData);
         setImages(imagesData.urls);
+        setShowAllImages(false);
       } catch (err) {
         console.error(err);
       } finally {
@@ -33,6 +38,44 @@ export default function Project() {
     load();
   }, [id]);
 
+  useEffect(() => {
+    if (selectedImageIndex === null) {
+      return;
+    }
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setSelectedImageIndex(null);
+      }
+    };
+
+    window.addEventListener('keydown', closeOnEscape);
+
+    return () => {
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [selectedImageIndex]);
+
+  const showPrevImage = () => {
+    if (selectedImageIndex === null || modalImages.length === 0) {
+      return;
+    }
+
+    setSelectedImageIndex(selectedImageIndex === 0 ? modalImages.length - 1 : selectedImageIndex - 1);
+  };
+
+  const showNextImage = () => {
+    if (selectedImageIndex === null || modalImages.length === 0) {
+      return;
+    }
+
+    setSelectedImageIndex(selectedImageIndex === modalImages.length - 1 ? 0 : selectedImageIndex + 1);
+  };
+
+  const getImgName = (url: string) => {
+    return url.split('/').pop()?.split('?')[0].split('-').slice(1).join('-') || '';
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, '0');
@@ -41,21 +84,49 @@ export default function Project() {
     return `${day}.${month}.${year}`;
   };
 
+  const displayedImages = showAllImages ? images : images.slice(0, 6);
+  const modalImages = showAllImages ? images : images.slice(0, 6);
+
   if (loading) return <main className="px-6 max-w-[960px] mx-auto py-6"><p className="m-0 mb-4 text-[#333]">Загрузка...</p></main>;
   if (!project) return <main className="px-6 max-w-[960px] mx-auto py-6"><p className="m-0 mb-4 text-[#333]">Проект не найден</p></main>;
 
-  return <main className="px-6 max-w-[960px] mx-auto py-6">
+  return <div className="px-30 w-full mx-auto py-6">
     <h1 className="text-3xl font-medium m-0 mb-2">{project.title}</h1>
     <p className="m-0 mb-4 text-[#333]">Обновлен: {formatDate(project.updatedAt)}</p>
 
     {images.length === 0 ? (
       <p className="m-0 mb-4 text-[#333]">Нет изображений</p>
     ) : (
-      <div className="grid gap-4 mt-4 grid-cols-[repeat(auto-fit,minmax(260px,1fr))]">
-        {images.map((url, index) => (
-          <img key={index} src={url} alt={`${project.title} ${index + 1}`} className="w-full h-auto border border-[#e5e5e5] rounded-lg" />
-        ))}
-      </div>
+      <>
+        <ProjectImagesGrid
+          images={displayedImages}
+          projectTitle={project.title}
+          getImgName={getImgName}
+          onSelect={setSelectedImageIndex}
+        />
+
+        {images.length > 6 && (
+          <div className="mt-6 flex justify-center">
+            <button
+              type="button"
+              className="px-5 py-2 rounded border border-[#cfcfcf] text-[#333] hover:border-black hover:text-black transition-colors"
+              onClick={() => setShowAllImages(prev => !prev)}
+            >
+              {showAllImages ? 'Скрыть остальные' : 'Показать остальные'}
+            </button>
+          </div>
+        )}
+      </>
     )}
-  </main>;
+
+    {selectedImageIndex !== null && (
+      <ProjectImageModal
+        imageUrl={modalImages[selectedImageIndex]}
+        imageName={getImgName(modalImages[selectedImageIndex]) ?? ''}
+        onClose={() => setSelectedImageIndex(null)}
+        onPrev={showPrevImage}
+        onNext={showNextImage}
+      />
+    )}
+  </div>;
 }

@@ -8,5 +8,8 @@ export const fetch = async (url: string, options?: RequestInit) => {
   if (!response.ok) {
     throw new Error((await response.json()).message);
   }
+
+  console.log(response)
+
   return response.json();
 };

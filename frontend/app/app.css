@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
 body {
-  margin: 0;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
   font-family: sans-serif;
   color: #5e5e5e;
   background: #fff;

@@ -26,19 +26,19 @@ const App = () => {
     effect()
   }, []);
 
-  if (loading) return <p>Загрузка...</p>;
+  if (loading) return <p className="text-base">Загрузка...</p>;
 
   if (!user) {
-    return <div>
-      <h1 className="text-2xl font-semibold mb-6">Админ</h1>
+    return <div className="max-w-5xl mx-auto px-6 py-8">
+      <h1 className="text-3xl font-semibold mb-6">Админ</h1>
       <LoginForm onLogin={checkAuth} />
     </div>;
   }
 
   const projectId = searchParams.get('id');
 
-  return <div>
-    <h1 className="text-2xl font-semibold mb-6">Админ</h1>
+  return <div className="max-w-5xl mx-auto px-6 py-8">
+    <h1 className="text-3xl font-semibold mb-6">Админ</h1>
     {projectId ? (
       <ProjectDetail projectId={Number(projectId)} />
     ) : (
