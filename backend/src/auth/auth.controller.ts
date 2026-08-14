@@ -8,7 +8,22 @@ import {
   Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import type { Response, Request } from 'express';
+import type { Response, Request, CookieOptions } from 'express';
+
+const authCookieOptions: CookieOptions = {
+  httpOnly: true,
+  sameSite: 'lax',
+  secure: process.env.NODE_ENV === 'production',
+  path: '/',
+  maxAge: 24 * 60 * 60 * 1000,
+};
+
+const clearAuthCookieOptions: CookieOptions = {
+  httpOnly: true,
+  sameSite: 'lax',
+  secure: process.env.NODE_ENV === 'production',
+  path: '/',
+};
 
 function getCookieValue(
   cookieHeader: string,
@@ -38,17 +53,23 @@ export class AuthController {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
     const token = this.authService.generateToken(username);
-    res.cookie('token', token, {
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000,
-    });
+    res.cookie('token', token, authCookieOptions);
     return res.json({ message: 'Login successful' });
   }
 
   @Post('logout')
   @HttpCode(200)
-  logout(@Res() res: Response) {
-    res.clearCookie('token');
+  logout(@Req() req: Request, @Res() res: Response) {
+    const cookieHeader = req.headers?.cookie;
+    const token = cookieHeader
+      ? getCookieValue(cookieHeader, 'token')
+      : undefined;
+
+    if (token) {
+      this.authService.revokeToken(token);
+    }
+
+    res.clearCookie('token', clearAuthCookieOptions);
     return res.json({ message: 'Logout successful' });
   }
 

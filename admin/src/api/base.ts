@@ -1,15 +1,16 @@
+const API_BASE = import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.PROD ? '/api' : 'http://localhost:5050/api');
+
 export const fetch = async (url: string, options?: RequestInit) => {
-  const response = await window.fetch('http://localhost:5050' + url, {
-    credentials: 'include', 
+  const response = await window.fetch(API_BASE + url, {
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    ...options
+    ...options,
   });
 
   if (!response.ok) {
     throw new Error((await response.json()).message);
   }
-
-  console.log(response)
-
+  
   return response.json();
 };

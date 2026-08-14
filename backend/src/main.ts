@@ -5,6 +5,10 @@ import { ConfigService } from '@nestjs/config';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.setGlobalPrefix('api');
+
+  app.getHttpAdapter().getInstance().set('trust proxy', 1);
+
   app.enableCors({
     origin: true,
     credentials: true,
@@ -15,7 +19,7 @@ async function bootstrap() {
 
   await app.listen(port);
 
-  console.log(`Application is running on: http://localhost:${port}`);
+  console.log(`Application is running on port: ${port}`);
 }
 
 bootstrap();

@@ -63,6 +63,8 @@ export class S3Service {
         Key: key,
       }),
     );
+
+    return { message: 'File deleted' };
   }
 
   async rename(oldKey: string, newKey: string) {

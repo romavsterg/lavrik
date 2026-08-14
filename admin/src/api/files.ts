@@ -12,11 +12,9 @@ export const getDownloadUrl = (key: string) =>
     body: JSON.stringify({ key }),
   });
 
-export const deleteFile = (key: string) =>
-{
-  console.log(key)
-  fetch('/files', {
+export const deleteFile = (key: string) => {
+  return fetch('/files', {
     method: 'DELETE',
     body: JSON.stringify({ key }),
   });
-}
+};

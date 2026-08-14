@@ -35,6 +35,7 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const getImgName = (value: string) => {
+    if (!value) return '';
     return value.split('/').pop()?.split('?')[0].split('-').slice(1).join('-') || '';
   };
 
@@ -139,7 +140,11 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
       });
 
       await addImage(projectId, key);
+      
+      project?.imgPaths.push(key);
+      
       await loadImages();
+
       setShowUploadForm(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -154,7 +159,6 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
       setUploading(false);
     }
   };
-
   const handleDeleteImage = async (key: string) => {
     try {
       await removeImage(projectId, key);

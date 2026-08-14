@@ -14,7 +14,7 @@ import { S3Module } from './s3/s3.module';
       type: 'sqlite',
       database: 'database.sqlite',
 
-      synchronize: true,
+      synchronize: process.env.NODE_ENV !== 'production',
 
       autoLoadEntities: true,
     }),
