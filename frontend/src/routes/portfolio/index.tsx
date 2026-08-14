@@ -21,13 +21,13 @@ export default function Portfolio() {
     load();
   }, []);
 
-  return <main className="px-6 max-w-[960px] mx-auto py-6">
-    <h1 className="text-3xl text-center font-medium m-0 mb-2">Портфолио</h1>
+  return <main className="px-4 sm:px-6 max-w-[960px] mx-auto py-6">
+    <h1 className="text-2xl sm:text-3xl text-center font-medium m-0 mb-2">Портфолио</h1>
 
     {loading ? (
       <p className="m-0 mb-4 text-[#333]">Загрузка...</p>
     ) : (
-      <div className="grid gap-5 mt-6 grid-cols-[repeat(auto-fit,minmax(260px,1fr))]">
+      <div className="grid gap-5 mt-6 grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
         {projects.map((project) => (
           <ProjectCard key={project.id} project={project} />
         ))}

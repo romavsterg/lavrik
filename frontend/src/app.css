@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  margin: 0;
+}
+
 body {
   width: 100%;
   max-width: 1440px;
@@ -7,4 +20,14 @@ body {
   font-family: sans-serif;
   color: #5e5e5e;
   background: #fff;
+}
+
+img {
+  max-width: 100%;
+}
+
+@media (max-width: 400px) {
+  body {
+    max-width: 400px;
+  }
 }

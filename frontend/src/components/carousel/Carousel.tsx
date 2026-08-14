@@ -86,7 +86,7 @@ const Carousel = () => {
             <img
               src={`mainCarousel/${num}.jpg`}
               alt={`Слайд ${num}`}
-              className="h-[453px] w-auto max-w-none object-contain"
+              className="h-[calc(74vh-50px)] sm:h-[453px] w-auto max-w-none object-contain"
               onLoad={() => setMeasureVersion(version => version + 1)}
             />
           </div>
@@ -95,13 +95,13 @@ const Carousel = () => {
 
       <button
         onClick={prev}
-        className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black px-3 py-2 rounded-full"
+        className="absolute left-2 top-1/2 -translate-y-1/2 bg-white text-black border border-black/30 shadow-md px-2.5 sm:px-3 py-2 sm:py-2 rounded-full text-xl sm:text-2xl"
       >
         ‹
       </button>
       <button
         onClick={next}
-        className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black px-3 py-2 rounded-full"
+        className="absolute right-2 top-1/2 -translate-y-1/2 bg-white text-black border border-black/30 shadow-md px-2.5 sm:px-3 py-2 sm:py-2 rounded-full text-xl sm:text-2xl"
       >
         ›
       </button>

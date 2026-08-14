@@ -11,6 +11,7 @@ export default function Project() {
   const [showAllImages, setShowAllImages] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 500);
 
   useEffect(() => {
     const load = async () => {
@@ -49,6 +50,19 @@ export default function Project() {
     };
   }, [selectedImageIndex]);
 
+  useEffect(() => {
+    const updateViewport = () => {
+      setIsMobile(window.innerWidth <= 600);
+    };
+
+    updateViewport();
+    window.addEventListener('resize', updateViewport);
+
+    return () => {
+      window.removeEventListener('resize', updateViewport);
+    };
+  }, []);
+
   const showPrevImage = () => {
     if (selectedImageIndex === null || modalImages.length === 0) {
       return;
@@ -69,23 +83,15 @@ export default function Project() {
     return url.split('/').pop()?.split('?')[0].split('-').slice(1).join('-') || '';
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}.${month}.${year}`;
-  };
+  const imagesLimit = isMobile ? 3 : 6;
+  const displayedImages = showAllImages ? images : images.slice(0, imagesLimit);
+  const modalImages = showAllImages ? images : images.slice(0, imagesLimit);
 
-  const displayedImages = showAllImages ? images : images.slice(0, 6);
-  const modalImages = showAllImages ? images : images.slice(0, 6);
+  if (loading) return <main className="px-4 sm:px-6 max-w-[960px] mx-auto py-6"><p className="m-0 mb-4 text-[#333]">Загрузка...</p></main>;
+  if (!project) return <main className="px-4 sm:px-6 max-w-[960px] mx-auto py-6"><p className="m-0 mb-4 text-[#333]">Проект не найден</p></main>;
 
-  if (loading) return <main className="px-6 max-w-[960px] mx-auto py-6"><p className="m-0 mb-4 text-[#333]">Загрузка...</p></main>;
-  if (!project) return <main className="px-6 max-w-[960px] mx-auto py-6"><p className="m-0 mb-4 text-[#333]">Проект не найден</p></main>;
-
-  return <div className="px-30 w-full mx-auto py-6">
-    <h1 className="text-3xl font-medium m-0 mb-2">{project.title}</h1>
-    <p className="m-0 mb-4 text-[#333]">Обновлен: {formatDate(project.updatedAt)}</p>
+  return <main className="px-4 sm:px-6 w-full mx-auto py-4">
+    <h1 className="text-2xl sm:text-3xl font-medium m-0 mb-2 break-words">{project.title}</h1>
 
     {images.length === 0 ? (
       <p className="m-0 mb-4 text-[#333]">Нет изображений</p>
@@ -98,11 +104,11 @@ export default function Project() {
           onSelect={setSelectedImageIndex}
         />
 
-        {images.length > 6 && (
+        {images.length > imagesLimit && (
           <div className="mt-6 flex justify-center">
             <button
               type="button"
-              className="px-5 py-2 rounded border border-[#cfcfcf] text-[#333] hover:border-black hover:text-black transition-colors"
+              className="px-4 py-2 rounded border border-[#cfcfcf] text-[#333] hover:border-black hover:text-black transition-colors w-[220px] max-w-full"
               onClick={() => setShowAllImages(prev => !prev)}
             >
               {showAllImages ? 'Скрыть остальные' : 'Показать остальные'}
@@ -121,5 +127,5 @@ export default function Project() {
         onNext={showNextImage}
       />
     )}
-  </div>;
+  </main>;
 }

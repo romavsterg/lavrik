@@ -9,27 +9,43 @@
   margin: 0 0 15px;
 }
 
-.cv-layout {
-  display: flex;
-  gap: 1.5rem;
-  align-items: flex-start;
+.cv-content::after {
+  content: "";
+  display: block;
+  clear: both;
 }
 
 .cv-image {
-  width: 200px;
+  width: 170px;
   height: auto;
   object-fit: cover;
-  flex-shrink: 0;
+  float: left;
+  margin: 0 1rem 0.75rem 0;
 }
 
-.cv-text h3 {
-  font-size: 1.25rem;
-  font-weight: 500;
-  margin: 0 0 0.75rem;
-}
-
-.cv-text p {
+.cv-content p {
   margin: 0;
   color: #333;
   line-height: 1.5;
+  font-size: 17px;
+}
+
+@media (max-width: 400px) {
+  .cv-page {
+    padding: 1.5rem 1rem;
+  }
+
+  .cv-page h2 {
+    font-size: 32px;
+  }
+
+  .cv-image {
+    width: 145px;
+    margin-right: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .cv-content p {
+    font-size: 18px;
+  }
 }

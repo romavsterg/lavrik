@@ -211,8 +211,8 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto mt-8 p-8 border border-[#e5e5e5] rounded-xl bg-white">
-      <div className="flex items-start gap-3 mb-6">
+    <div className="max-w-4xl mx-auto mt-8 p-8 border border-[#e5e5e5] rounded-xl bg-white max-[499px]:mt-4 max-[499px]:p-4 max-[499px]:rounded-lg">
+      <div className="flex items-start gap-3 mb-6 max-[499px]:mb-4 max-[499px]:gap-2 max-[499px]:flex-col max-[499px]:items-stretch">
         {isEditingTitle ? (
           <input
             type="text"
@@ -228,17 +228,17 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
                 setEditingTitle(project.title);
               }
             }}
-            className="text-3xl font-semibold px-4 py-3 border border-[#e5e5e5] rounded-md flex-1"
+            className="text-3xl font-semibold px-4 py-3 border border-[#e5e5e5] rounded-md flex-1 max-[499px]:text-[2rem] max-[499px]:px-3 max-[499px]:py-2"
             autoFocus
           />
         ) : (
-          <h2 className="text-3xl font-semibold m-0 flex-1 break-words">{project.title}</h2>
+          <h2 className="text-3xl font-semibold m-0 flex-1 break-words max-[499px]:text-[2rem]">{project.title}</h2>
         )}
 
         <button
           onClick={isEditingTitle ? handleTitleUpdate : () => setIsEditingTitle(true)}
           disabled={updatingTitle}
-          className="px-5 py-2.5 bg-[#1a1a1a] text-white border border-[#1a1a1a] rounded-md hover:bg-[#333] disabled:opacity-50 whitespace-nowrap text-base"
+          className="px-5 py-2.5 bg-[#1a1a1a] text-white border border-[#1a1a1a] rounded-md hover:bg-[#333] disabled:opacity-50 whitespace-nowrap text-base max-[499px]:w-full max-[499px]:px-4 max-[499px]:py-2 max-[499px]:text-[17px]"
         >
           {updatingTitle ? 'Сохранение...' : isEditingTitle ? 'Сохранить' : 'Изменить название'}
         </button>
@@ -249,56 +249,56 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
               setIsEditingTitle(false);
               setEditingTitle(project.title);
             }}
-            className="px-5 py-2.5 border border-[#e5e5e5] rounded-md hover:bg-gray-50 whitespace-nowrap text-base"
+            className="px-5 py-2.5 border border-[#e5e5e5] rounded-md hover:bg-gray-50 whitespace-nowrap text-base max-[499px]:w-full max-[499px]:px-4 max-[499px]:py-2 max-[499px]:text-[17px]"
           >
             Отмена
           </button>
         )}
       </div>
 
-      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+      {error && <p className="text-red-600 text-sm mb-4 max-[499px]:text-base">{error}</p>}
 
       <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-medium">Изображения</h3>
+          <div className="flex items-center justify-between mb-4 max-[499px]:mb-3 max-[499px]:flex-col max-[499px]:items-stretch max-[499px]:gap-2">
+            <h3 className="text-xl font-medium max-[499px]:text-2xl">Изображения</h3>
             <button
               onClick={() => setShowUploadForm(!showUploadForm)}
-              className="px-5 py-2.5 bg-[#1a1a1a] text-white border border-[#1a1a1a] rounded-md hover:bg-[#333] text-base"
+              className="px-5 py-2.5 bg-[#1a1a1a] text-white border border-[#1a1a1a] rounded-md hover:bg-[#333] text-base max-[499px]:px-4 max-[499px]:py-2 max-[499px]:text-[17px]"
             >
               {showUploadForm ? 'Скрыть форму' : 'Добавить изображение'}
             </button>
           </div>
 
         {showUploadForm && (
-          <div className="mb-4 p-4 border border-[#e5e5e5] rounded">
+          <div className="mb-4 p-4 border border-[#e5e5e5] rounded max-[499px]:mb-3 max-[499px]:p-3">
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
               onChange={() => setUploadError('')}
-              className="w-full px-3 py-2 border border-[#e5e5e5] rounded mb-3"
+              className="w-full px-3 py-2 border border-[#e5e5e5] rounded mb-3 text-base max-[499px]:mb-2 max-[499px]:text-[17px]"
             />
             <button
               onClick={handleUpload}
               disabled={uploading}
-              className="px-4 py-2 bg-[#1a1a1a] text-white border border-[#1a1a1a] rounded hover:bg-[#333] disabled:opacity-50"
+              className="px-4 py-2 bg-[#1a1a1a] text-white border border-[#1a1a1a] rounded hover:bg-[#333] disabled:opacity-50 text-base max-[499px]:px-3 max-[499px]:py-2 max-[499px]:text-[17px]"
             >
               {uploading ? 'Загрузка...' : 'Загрузить'}
             </button>
-            {uploadError && <p className="text-red-600 text-sm mt-3">{uploadError}</p>}
+            {uploadError && <p className="text-red-600 text-sm mt-3 max-[499px]:text-base">{uploadError}</p>}
           </div>
         )}
 
         {images.length === 0 ? (
           <p className="text-gray-500">Нет изображений</p>
         ) : (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 max-[499px]:grid-cols-1 max-[499px]:gap-3">
             {images.map((img) => (
               <div key={img.key} className="border border-[#e5e5e5] rounded-md overflow-hidden bg-white">
                 {img.url ? (
-                  <img src={img.url} alt="" className="w-full h-52 object-cover" />
+                  <img src={img.url} alt="" className="w-full h-52 object-cover max-[499px]:h-48" />
                 ) : (
-                  <div className="w-full h-52 bg-gray-100 flex items-center justify-center text-gray-400">
+                  <div className="w-full h-52 bg-gray-100 flex items-center justify-center text-gray-400 max-[499px]:h-48">
                     Недоступно
                   </div>
                 )}
@@ -318,26 +318,26 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
                           cancelImageRename();
                         }
                       }}
-                      className="w-full px-3 py-2 border border-[#e5e5e5] rounded-md text-sm mb-3"
+                      className="w-full px-3 py-2 border border-[#e5e5e5] rounded-md text-sm mb-3 max-[499px]:mb-2 max-[499px]:text-base"
                       autoFocus
                     />
                   ) : (
-                    <p className="m-0 mb-3 text-sm text-[#333] break-all">{getImgName(img.key)}</p>
+                    <p className="m-0 mb-3 text-sm text-[#333] break-all max-[499px]:mb-2 max-[499px]:text-base">{getImgName(img.key)}</p>
                   )}
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 max-[499px]:gap-2 max-[499px]:flex-wrap">
                     {editingImageKey === img.key ? (
                       <>
                         <button
                           onClick={() => handleImageRename(img.key)}
                           disabled={renamingImageKey === img.key}
-                          className="text-green-600 hover:text-green-800 text-sm disabled:opacity-50"
+                          className="text-green-600 hover:text-green-800 text-sm disabled:opacity-50 max-[499px]:text-base"
                         >
                           {renamingImageKey === img.key ? 'Сохранение...' : 'Сохранить'}
                         </button>
                         <button
                           onClick={cancelImageRename}
-                          className="text-gray-600 hover:text-gray-800 text-sm"
+                          className="text-gray-600 hover:text-gray-800 text-sm max-[499px]:text-base"
                         >
                           Отмена
                         </button>
@@ -345,7 +345,7 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
                     ) : (
                       <button
                         onClick={() => startImageRename(img.key)}
-                        className="text-blue-600 hover:text-blue-800 text-sm"
+                        className="text-blue-600 hover:text-blue-800 text-sm max-[499px]:text-base"
                       >
                         Переименовать
                       </button>
@@ -353,7 +353,7 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
 
                     <button
                       onClick={() => handleDeleteImage(img.key)}
-                      className="text-red-600 hover:text-red-800 text-sm"
+                      className="text-red-600 hover:text-red-800 text-sm max-[499px]:text-base"
                     >
                       Удалить
                     </button>
@@ -367,7 +367,7 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
 
       <button
         onClick={() => navigate('/')}
-        className="px-4 py-2 border border-[#e5e5e5] rounded hover:bg-gray-50"
+        className="px-4 py-2 border border-[#e5e5e5] rounded hover:bg-gray-50 text-base max-[499px]:px-3 max-[499px]:py-2 max-[499px]:text-[17px]"
       >
         Назад к списку
       </button>

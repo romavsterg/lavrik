@@ -79,16 +79,16 @@ export default function ProjectsManager() {
   if (loading) return <p>Загрузка...</p>;
 
   return (
-    <div className="max-w-4xl mx-auto mt-8 p-8 border border-[#e5e5e5] rounded-xl bg-white">
-      <h2 className="text-2xl font-semibold mb-5">Проекты</h2>
+    <div className="max-w-4xl mx-auto mt-8 p-8 border border-[#e5e5e5] rounded-xl bg-white max-[499px]:mt-4 max-[499px]:p-4 max-[499px]:rounded-lg">
+      <h2 className="text-2xl font-semibold mb-5 max-[499px]:mb-4 max-[499px]:text-[1.75rem]">Проекты</h2>
 
-      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+      {error && <p className="text-red-600 text-sm mb-4 max-[499px]:text-base">{error}</p>}
 
       {view === 'list' && (
         <div>
           <button
             onClick={() => setView('create')}
-            className="mb-5 px-5 py-2.5 text-base bg-[#1a1a1a] text-white border border-[#1a1a1a] rounded-md hover:bg-[#333]"
+            className="mb-5 px-5 py-2.5 text-base bg-[#1a1a1a] text-white border border-[#1a1a1a] rounded-md hover:bg-[#333] max-[499px]:mb-4 max-[499px]:px-4 max-[499px]:py-2 max-[499px]:text-[17px]"
           >
             Создать проект
           </button>
@@ -96,66 +96,68 @@ export default function ProjectsManager() {
           {projects.length === 0 ? (
             <p className="text-gray-500">Нет проектов</p>
           ) : (
-            <table className="w-full border-collapse text-base">
-              <thead>
-                <tr className="border-b border-[#e5e5e5]">
-                  <th className="text-left py-3 px-4 font-medium">Название</th>
-                  <th className="text-left py-3 px-4 font-medium">Дата обновления</th>
-                  <th className="text-right py-2 px-3 font-medium">Действия</th>
-                </tr>
-              </thead>
-              <tbody>
-                {projects.map((project) => (
-                  <tr key={project.id} className="border-b border-[#e5e5e5]">
-                    <td className="py-3 px-4">
-                      <Link
-                        to={`/?id=${project.id}`}
-                        className="text-[#1a1a1a] no-underline hover:underline text-lg"
-                      >
-                        {project.title}
-                      </Link>
-                    </td>
-                    <td className="py-3 px-4 text-[#444]">{formatDate(project.updatedAt || project.createdAt)}</td>
-                    <td className="py-3 px-4 text-right">
-                      <button
-                        onClick={() => handleDelete(project.id)}
-                        className="text-red-600 hover:text-red-800 text-base"
-                      >
-                        Удалить
-                      </button>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-base max-[499px]:text-[17px]">
+                <thead>
+                  <tr className="border-b border-[#e5e5e5]">
+                    <th className="text-left py-3 px-4 font-medium max-[499px]:py-2 max-[499px]:px-2">Название</th>
+                    <th className="text-left py-3 px-4 font-medium max-[499px]:py-2 max-[499px]:px-2">Дата обновления</th>
+                    <th className="text-right py-2 px-3 font-medium max-[499px]:py-2 max-[499px]:px-2">Действия</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {projects.map((project) => (
+                    <tr key={project.id} className="border-b border-[#e5e5e5]">
+                      <td className="py-3 px-4 max-[499px]:py-2 max-[499px]:px-2">
+                        <Link
+                          to={`/?id=${project.id}`}
+                          className="text-[#1a1a1a] no-underline hover:underline text-lg max-[499px]:text-xl"
+                        >
+                          {project.title}
+                        </Link>
+                      </td>
+                      <td className="py-3 px-4 text-[#444] max-[499px]:py-2 max-[499px]:px-2">{formatDate(project.updatedAt || project.createdAt)}</td>
+                      <td className="py-3 px-4 text-right max-[499px]:py-2 max-[499px]:px-2">
+                        <button
+                          onClick={() => handleDelete(project.id)}
+                          className="text-red-600 hover:text-red-800 text-base max-[499px]:text-[17px]"
+                        >
+                          Удалить
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}
 
       {view === 'create' && (
-        <form onSubmit={handleCreate} className="flex flex-col gap-4">
+        <form onSubmit={handleCreate} className="flex flex-col gap-4 max-[499px]:gap-3">
           <div>
-            <label className="block text-base mb-1">Название</label>
+            <label className="block text-base mb-1 max-[499px]:text-[17px]">Название</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              className="w-full px-4 py-3 border border-[#e5e5e5] rounded-md text-base"
+              className="w-full px-4 py-3 border border-[#e5e5e5] rounded-md text-base max-[499px]:px-3 max-[499px]:py-2 max-[499px]:text-[17px]"
             />
           </div>
-          <div className="flex gap-2 mt-2">
+          <div className="flex gap-2 mt-2 max-[499px]:mt-1 max-[499px]:flex-col">
             <button
               type="button"
               onClick={() => setView('list')}
-              className="px-5 py-2.5 border border-[#e5e5e5] rounded-md hover:bg-gray-50 text-base"
+              className="px-5 py-2.5 border border-[#e5e5e5] rounded-md hover:bg-gray-50 text-base max-[499px]:px-4 max-[499px]:py-2 max-[499px]:text-[17px]"
             >
               Назад к списку
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-5 py-2.5 bg-[#1a1a1a] text-white border border-[#1a1a1a] rounded-md hover:bg-[#333] disabled:opacity-50 text-base"
+              className="px-5 py-2.5 bg-[#1a1a1a] text-white border border-[#1a1a1a] rounded-md hover:bg-[#333] disabled:opacity-50 text-base max-[499px]:px-4 max-[499px]:py-2 max-[499px]:text-[17px]"
             >
               {submitting ? 'Создание...' : 'Создать'}
             </button>

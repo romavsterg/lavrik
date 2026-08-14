@@ -24,7 +24,7 @@ RUN npm run build
 
 FROM nginx:alpine
 
-COPY --from=frontend-builder /app/build/client /usr/share/nginx/html
+COPY --from=frontend-builder /app/dist /usr/share/nginx/html
 
 COPY --from=admin-builder /app/dist /usr/share/nginx/html/admin
 

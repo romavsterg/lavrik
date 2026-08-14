@@ -11,7 +11,7 @@ export default function ProjectImagesGrid({ images, projectTitle, getImgName, on
       <button
         key={index}
         type="button"
-        className="group relative w-[380px] h-[250px] overflow-hidden rounded-lg border border-[#e5e5e5] hover:border-[#8b0000] hover:shadow-md transition-colors transition-shadow cursor-pointer"
+        className="group relative w-[380px] h-[220px] sm:h-[250px] overflow-hidden rounded-lg border border-[#e5e5e5] hover:border-[#8b0000] hover:shadow-md transition-colors transition-shadow cursor-pointer"
         onClick={() => onSelect(index)}
       >
         <img
