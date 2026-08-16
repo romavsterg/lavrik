@@ -12,9 +12,11 @@ import { S3Module } from './s3/s3.module';
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'sqlite',
-      database: 'database.sqlite',
+      database: process.env.SQLITE_PATH ?? 'db/database.sqlite',
 
-      synchronize: process.env.NODE_ENV !== 'production',
+      synchronize:
+        process.env.TYPEORM_SYNCHRONIZE === 'true' ||
+        process.env.NODE_ENV !== 'production',
 
       autoLoadEntities: true,
     }),

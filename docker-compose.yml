@@ -9,6 +9,9 @@ services:
       - "4173:4173"
 
   backend:
+    profiles:
+      - app
+      - nginx
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -18,8 +21,9 @@ services:
       - ./backend/.env
     environment:
       - NODE_ENV=production
+      - TYPEORM_SYNCHRONIZE=true
     volumes:
-      - ./backend/database.sqlite:/app/database.sqlite
+      - ./backend/db:/app/db
 
   admin:
     profiles:

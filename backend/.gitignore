@@ -9,4 +9,5 @@ build/
 coverage/
 .cache/
 database.sqlite
+db/database.sqlite
 *.sqlite
