@@ -2,14 +2,14 @@ FROM node:24-alpine
 
 WORKDIR /app
 
-COPY ./package*.json .
+COPY ./package*.json ./
 
 RUN npm ci
 
-COPY . .
+COPY ./ ./
 
 RUN npm run build
 
 EXPOSE 5050
 
-CMD ["npm", "run", "start:prod"]
+CMD ["sh", "-c", "[ -f /app/database.sqlite ] || touch /app/database.sqlite && npm run start:prod"]

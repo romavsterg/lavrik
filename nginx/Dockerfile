@@ -6,7 +6,7 @@ COPY frontend/package*.json ./
 
 RUN npm ci
 
-COPY frontend/ .
+COPY frontend/ ./
 
 RUN npm run build
 
@@ -18,7 +18,7 @@ COPY admin/package*.json ./
 
 RUN npm ci
 
-COPY admin/ .
+COPY admin/ ./
 
 RUN npm run build
 
