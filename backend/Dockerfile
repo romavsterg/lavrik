@@ -12,4 +12,4 @@ RUN npm run build
 
 EXPOSE 5050
 
-CMD ["sh", "-c", "[ -f /app/database.sqlite ] || touch /app/database.sqlite && npm run start:prod"]
+CMD ["sh", "-c", "[ ! -f 'db/database.sqlite' ] && touch 'db/database.sqlite'; npm run start:prod"]
