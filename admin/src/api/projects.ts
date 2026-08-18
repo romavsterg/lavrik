@@ -35,6 +35,18 @@ export const deleteProject = (id: number) =>
     method: 'DELETE',
   });
 
+export const changeProjectsOrder = (projectIds: number[]) =>
+  fetch('/projects/change-order', {
+    method: 'POST',
+    body: JSON.stringify({ projectsIds: projectIds }),
+  });
+
+export const changeProjectImagesOrder = (id: number, imageKeys: string[]) =>
+  fetch(`/projects/${id}/images/change-order`, {
+    method: 'POST',
+    body: JSON.stringify({ imageKeys }),
+  });
+
 export const addImage = (id: number, key: string) =>
   fetch(`/projects/${id}/images`, {
     method: 'POST',

@@ -80,7 +80,7 @@ export default function Project() {
   };
 
   const getImgName = (url: string) => {
-    return url.split('/').pop()?.split('?')[0].split('-').slice(1).join('-') || '';
+    return url.split('/').pop()?.split('?')[0].split('-').slice(1).join('-').split('.').slice(0, -1).join('.') || '';
   };
 
   const imagesLimit = isMobile ? 3 : 6;

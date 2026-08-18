@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -12,6 +13,14 @@ import {
 import { AuthGuard } from '../auth/auth.guard';
 import { ProjectsService } from './projects.service';
 
+type ChangeOrderBody = {
+  projectsIds: number[];
+};
+
+type ChangeImagesOrderBody = {
+  imageKeys: string[];
+};
+
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
@@ -23,11 +32,6 @@ export class ProjectsController {
   }
 
   @Get()
-  findAll() {
-    return this.projectsService.findAll();
-  }
-
-  @Get('public')
   findPublic(@Query('limit') limit?: string, @Query('page') page?: string) {
     const lim = limit ? Number(limit) : 6;
     const p = page ? Number(page) : 1;
@@ -55,6 +59,29 @@ export class ProjectsController {
   @UseGuards(AuthGuard)
   addImage(@Param('id') id: string, @Body('key') key: string) {
     return this.projectsService.addImage(Number(id), key);
+  }
+
+  @Post('change-order')
+  @UseGuards(AuthGuard)
+  changeOrder(@Body() body: ChangeOrderBody) {
+    if (!body.projectsIds) {
+      throw new BadRequestException('projectsIds is required');
+    }
+
+    return this.projectsService.changeOrder(body.projectsIds);
+  }
+
+  @Post(':id/images/change-order')
+  @UseGuards(AuthGuard)
+  changeImagesOrder(
+    @Param('id') id: string,
+    @Body() body: ChangeImagesOrderBody,
+  ) {
+    if (!body.imageKeys) {
+      throw new BadRequestException('imageKeys is required');
+    }
+
+    return this.projectsService.changeImagesOrder(Number(id), body.imageKeys);
   }
 
   @Delete(':id/images')

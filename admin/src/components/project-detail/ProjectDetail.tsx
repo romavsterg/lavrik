@@ -6,6 +6,7 @@ import {
   addImage,
   removeImage,
   renameImage,
+  changeProjectImagesOrder,
   getProjectImageUrls,
   getUploadUrl,
   deleteFile,
@@ -32,6 +33,9 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const [isEditingImagesOrder, setIsEditingImagesOrder] = useState(false);
+  const [initialImagesOrder, setInitialImagesOrder] = useState<ImageItem[]>([]);
+  const [savingImagesOrder, setSavingImagesOrder] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const getImgName = (value: string) => {
@@ -173,6 +177,55 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
     }
   };
 
+  const moveImage = (index: number, direction: 'up' | 'down') => {
+    setImages((prev) => {
+      const nextIndex = direction === 'up' ? index - 1 : index + 1;
+
+      if (nextIndex < 0 || nextIndex >= prev.length) {
+        return prev;
+      }
+
+      const updated = [...prev];
+      [updated[index], updated[nextIndex]] = [updated[nextIndex], updated[index]];
+
+      return updated;
+    });
+  };
+
+  const handleStartEditImagesOrder = () => {
+    setInitialImagesOrder(images);
+    setIsEditingImagesOrder(true);
+    setShowUploadForm(false);
+    setError('');
+  };
+
+  const handleCancelEditImagesOrder = () => {
+    setImages(initialImagesOrder);
+    setIsEditingImagesOrder(false);
+    setError('');
+  };
+
+  const handleSaveImagesOrder = async () => {
+    setSavingImagesOrder(true);
+    setError('');
+
+    try {
+      const imageKeys = images.map((image) => image.key);
+      await changeProjectImagesOrder(projectId, imageKeys);
+      setProject((prev) => (prev ? { ...prev, imgPaths: imageKeys } : prev));
+      setInitialImagesOrder(images);
+      setIsEditingImagesOrder(false);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Ошибка сохранения порядка изображений');
+      }
+    } finally {
+      setSavingImagesOrder(false);
+    }
+  };
+
   const startImageRename = (key: string) => {
     setEditingImageKey(key);
     setEditingImageName(getImgName(key));
@@ -265,12 +318,42 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
       <div className="mb-6">
           <div className="flex items-center justify-between mb-4 max-[499px]:mb-3 max-[499px]:flex-col max-[499px]:items-stretch max-[499px]:gap-2">
             <h3 className="text-xl font-medium max-[499px]:text-2xl">Изображения</h3>
-            <button
-              onClick={() => setShowUploadForm(!showUploadForm)}
-              className="px-5 py-2.5 bg-[#1a1a1a] text-white border border-[#1a1a1a] rounded-md hover:bg-[#333] text-base max-[499px]:px-4 max-[499px]:py-2 max-[499px]:text-[17px]"
-            >
-              {showUploadForm ? 'Скрыть форму' : 'Добавить изображение'}
-            </button>
+            <div className="flex items-center gap-2 max-[499px]:flex-col max-[499px]:items-stretch">
+              {isEditingImagesOrder ? (
+                <>
+                  <button
+                    onClick={handleSaveImagesOrder}
+                    disabled={savingImagesOrder}
+                    className="px-5 py-2.5 bg-[#1a1a1a] text-white border border-[#1a1a1a] rounded-md hover:bg-[#333] disabled:opacity-50 text-base max-[499px]:px-4 max-[499px]:py-2 max-[499px]:text-[17px]"
+                  >
+                    {savingImagesOrder ? 'Сохранение...' : 'Сохранить'}
+                  </button>
+                  <button
+                    onClick={handleCancelEditImagesOrder}
+                    disabled={savingImagesOrder}
+                    className="px-5 py-2.5 border border-[#e5e5e5] rounded-md hover:bg-gray-50 disabled:opacity-50 text-base max-[499px]:px-4 max-[499px]:py-2 max-[499px]:text-[17px]"
+                  >
+                    Отменить
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setShowUploadForm(!showUploadForm)}
+                    className="px-5 py-2.5 bg-[#1a1a1a] text-white border border-[#1a1a1a] rounded-md hover:bg-[#333] text-base max-[499px]:px-4 max-[499px]:py-2 max-[499px]:text-[17px]"
+                  >
+                    {showUploadForm ? 'Скрыть форму' : 'Добавить изображение'}
+                  </button>
+                  <button
+                    onClick={handleStartEditImagesOrder}
+                    disabled={images.length < 2}
+                    className="px-5 py-2.5 border border-[#e5e5e5] rounded-md hover:bg-gray-50 disabled:opacity-50 text-base max-[499px]:px-4 max-[499px]:py-2 max-[499px]:text-[17px]"
+                  >
+                    Изменить порядок отображения
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
         {showUploadForm && (
@@ -297,7 +380,7 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
           <p className="text-gray-500">Нет изображений</p>
         ) : (
           <div className="grid grid-cols-2 gap-4 max-[499px]:grid-cols-1 max-[499px]:gap-3">
-            {images.map((img) => (
+            {images.map((img, index) => (
               <div key={img.key} className="border border-[#e5e5e5] rounded-md overflow-hidden bg-white">
                 {img.url ? (
                   <img src={img.url} alt="" className="w-full h-52 object-cover max-[499px]:h-48" />
@@ -329,8 +412,26 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
                     <p className="m-0 mb-3 text-sm text-[#333] break-all max-[499px]:mb-2 max-[499px]:text-base">{getImgName(img.key)}</p>
                   )}
 
-                  <div className="flex items-center gap-3 max-[499px]:gap-2 max-[499px]:flex-wrap">
-                    {editingImageKey === img.key ? (
+                  {isEditingImagesOrder ? (
+                    <div className="flex items-center gap-2 max-[499px]:flex-wrap">
+                      <button
+                        onClick={() => moveImage(index, 'up')}
+                        disabled={index === 0 || savingImagesOrder}
+                        className="px-3 py-1 border border-[#e5e5e5] rounded-md hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        onClick={() => moveImage(index, 'down')}
+                        disabled={index === images.length - 1 || savingImagesOrder}
+                        className="px-3 py-1 border border-[#e5e5e5] rounded-md hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        ↓
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 max-[499px]:gap-2 max-[499px]:flex-wrap">
+                      {editingImageKey === img.key ? (
                       <>
                         <button
                           onClick={() => handleImageRename(img.key)}
@@ -346,22 +447,23 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
                           Отмена
                         </button>
                       </>
-                    ) : (
-                      <button
-                        onClick={() => startImageRename(img.key)}
-                        className="text-blue-600 hover:text-blue-800 text-sm max-[499px]:text-base"
-                      >
-                        Переименовать
-                      </button>
-                    )}
+                      ) : (
+                        <button
+                          onClick={() => startImageRename(img.key)}
+                          className="text-blue-600 hover:text-blue-800 text-sm max-[499px]:text-base"
+                        >
+                          Переименовать
+                        </button>
+                      )}
 
-                    <button
-                      onClick={() => handleDeleteImage(img.key)}
-                      className="text-red-600 hover:text-red-800 text-sm max-[499px]:text-base"
-                    >
-                      Удалить
-                    </button>
-                  </div>
+                      <button
+                        onClick={() => handleDeleteImage(img.key)}
+                        className="text-red-600 hover:text-red-800 text-sm max-[499px]:text-base"
+                      >
+                        Удалить
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

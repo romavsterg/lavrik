@@ -17,6 +17,9 @@ export class ProjectEntity {
   @Column('simple-array')
   imgPaths!: string[];
 
+  @Column({ type: 'integer', default: 0 })
+  sortOrder!: number;
+
   @CreateDateColumn()
   createdAt!: Date;
 

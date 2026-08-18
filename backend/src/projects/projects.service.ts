@@ -12,16 +12,25 @@ export class ProjectsService {
     private readonly s3Service: S3Service,
   ) {}
 
-  create(title: string) {
+  async create(title: string) {
+    const [lastProject] = await this.repository.find({
+      order: {
+        sortOrder: 'DESC',
+      },
+      take: 1,
+    });
+
     return this.repository.save({
       title,
       imgPaths: [],
+      sortOrder: (lastProject?.sortOrder ?? -1) + 1,
     });
   }
 
   findAll() {
     return this.repository.find({
       order: {
+        sortOrder: 'ASC',
         updatedAt: 'DESC',
       },
     });
@@ -32,6 +41,7 @@ export class ProjectsService {
 
     const [projects, total] = await this.repository.findAndCount({
       order: {
+        sortOrder: 'ASC',
         updatedAt: 'DESC',
       },
       skip,
@@ -107,6 +117,25 @@ export class ProjectsService {
     await this.s3Service.rename(oldKey, newKey);
 
     return this.repository.update(id, { imgPaths: newPaths });
+  }
+
+  async changeOrder(projectIds: number[]) {
+    await this.repository.manager.transaction(async (transactionalManager) => {
+      for (const [index, id] of projectIds.entries()) {
+        await transactionalManager.update(ProjectEntity, id, {
+          sortOrder: index,
+        });
+      }
+    });
+
+    return { message: 'Projects order updated' };
+  }
+
+  async changeImagesOrder(id: number, imageKeys: string[]) {
+    const project = await this.repository.findOneBy({ id });
+    if (!project) return null;
+
+    return this.repository.update(id, { imgPaths: imageKeys });
   }
 
   remove(id: number) {

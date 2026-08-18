@@ -7,6 +7,8 @@ export {
   createProject,
   updateProject,
   deleteProject,
+  changeProjectsOrder,
+  changeProjectImagesOrder,
   addImage,
   removeImage,
   renameImage,

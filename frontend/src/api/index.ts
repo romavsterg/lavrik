@@ -1,6 +1,6 @@
 export const API_BASE =
   import.meta.env.VITE_API_BASE_URL ||
-  (import.meta.env.PROD ? '/api' : 'http://localhost:5050');
+  (import.meta.env.PROD ? '/api' : 'http://localhost:5050/api');
 
 export const fetch = async (url: string, options?: RequestInit) => {
   const response = await window.fetch(API_BASE + url, {
@@ -16,7 +16,7 @@ export const fetch = async (url: string, options?: RequestInit) => {
 };
 
 export const getProjects = (limit = 6, page = 1) =>
-  fetch(`/projects/public?limit=${limit}&page=${page}`);
+  fetch(`/projects?limit=${limit}&page=${page}`);
 
 export const getProject = (id: number) =>
   fetch(`/projects/${id}`);

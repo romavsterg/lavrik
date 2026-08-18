@@ -4,6 +4,7 @@ import {
   getAllProjects,
   createProject,
   deleteProject,
+  changeProjectsOrder,
   type Project,
 } from '../../api';
 
@@ -14,11 +15,14 @@ export default function ProjectsManager() {
   const [view, setView] = useState<'list' | 'create'>('list');
   const [title, setTitle] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [isEditingOrder, setIsEditingOrder] = useState(false);
+  const [initialProjectsOrder, setInitialProjectsOrder] = useState<Project[]>([]);
 
   const loadProjects = async () => {
     try {
       const data = await getAllProjects();
-      setProjects(data);
+
+      setProjects(data.items);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -68,6 +72,51 @@ export default function ProjectsManager() {
     }
   };
 
+  const moveProject = (index: number, direction: 'up' | 'down') => {
+    setProjects((prev) => {
+      const nextIndex = direction === 'up' ? index - 1 : index + 1;
+
+      if (nextIndex < 0 || nextIndex >= prev.length) {
+        return prev;
+      }
+
+      const updated = [...prev];
+      [updated[index], updated[nextIndex]] = [updated[nextIndex], updated[index]];
+
+      return updated;
+    });
+  };
+
+  const handleStartEditOrder = () => {
+    setInitialProjectsOrder(projects);
+    setIsEditingOrder(true);
+  };
+
+  const handleCancelEditOrder = () => {
+    setProjects(initialProjectsOrder);
+    setIsEditingOrder(false);
+    setError('');
+  };
+
+  const handleSaveOrder = async () => {
+    setSubmitting(true);
+    setError('');
+
+    try {
+      await changeProjectsOrder(projects.map((project) => project.id));
+      setInitialProjectsOrder(projects);
+      setIsEditingOrder(false);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Ошибка сохранения порядка');
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, '0');
@@ -86,12 +135,44 @@ export default function ProjectsManager() {
 
       {view === 'list' && (
         <div>
-          <button
-            onClick={() => setView('create')}
-            className="mb-5 px-5 py-2.5 text-base bg-[#1a1a1a] text-white border border-[#1a1a1a] rounded-md hover:bg-[#333] max-[499px]:mb-4 max-[499px]:px-4 max-[499px]:py-2 max-[499px]:text-[17px]"
-          >
-            Создать проект
-          </button>
+          <div className="mb-5 flex gap-2 max-[499px]:mb-4 max-[499px]:flex-col">
+            {!isEditingOrder ? (
+              <>
+                <button
+                  onClick={() => setView('create')}
+                  className="px-5 py-2.5 text-base bg-[#1a1a1a] text-white border border-[#1a1a1a] rounded-md hover:bg-[#333] max-[499px]:px-4 max-[499px]:py-2 max-[499px]:text-[17px]"
+                >
+                  Создать проект
+                </button>
+
+                <button
+                  onClick={handleStartEditOrder}
+                  disabled={projects.length < 2}
+                  className="px-5 py-2.5 text-base border border-[#e5e5e5] rounded-md hover:bg-gray-50 disabled:opacity-50 max-[499px]:px-4 max-[499px]:py-2 max-[499px]:text-[17px]"
+                >
+                  Изменить порядок отображения
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleSaveOrder}
+                  disabled={submitting}
+                  className="px-5 py-2.5 text-base bg-[#1a1a1a] text-white border border-[#1a1a1a] rounded-md hover:bg-[#333] disabled:opacity-50 max-[499px]:px-4 max-[499px]:py-2 max-[499px]:text-[17px]"
+                >
+                  {submitting ? 'Сохранение...' : 'Сохранить'}
+                </button>
+
+                <button
+                  onClick={handleCancelEditOrder}
+                  disabled={submitting}
+                  className="px-5 py-2.5 text-base border border-[#e5e5e5] rounded-md hover:bg-gray-50 disabled:opacity-50 max-[499px]:px-4 max-[499px]:py-2 max-[499px]:text-[17px]"
+                >
+                  Отменить
+                </button>
+              </>
+            )}
+          </div>
 
           {projects.length === 0 ? (
             <p className="text-gray-500">Нет проектов</p>
@@ -102,11 +183,12 @@ export default function ProjectsManager() {
                   <tr className="border-b border-[#e5e5e5]">
                     <th className="text-left py-3 px-4 font-medium max-[499px]:py-2 max-[499px]:px-2">Название</th>
                     <th className="text-left py-3 px-4 font-medium max-[499px]:py-2 max-[499px]:px-2">Дата обновления</th>
+                    {isEditingOrder && <th className="text-center py-2 px-3 font-medium max-[499px]:py-2 max-[499px]:px-2">Порядок</th>}
                     <th className="text-right py-2 px-3 font-medium max-[499px]:py-2 max-[499px]:px-2">Действия</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {projects.map((project) => (
+                  {projects.map((project, index) => (
                     <tr key={project.id} className="border-b border-[#e5e5e5]">
                       <td className="py-3 px-4 max-[499px]:py-2 max-[499px]:px-2">
                         <Link
@@ -117,13 +199,35 @@ export default function ProjectsManager() {
                         </Link>
                       </td>
                       <td className="py-3 px-4 text-[#444] max-[499px]:py-2 max-[499px]:px-2">{formatDate(project.updatedAt || project.createdAt)}</td>
+                      {isEditingOrder && (
+                        <td className="py-3 px-4 text-center max-[499px]:py-2 max-[499px]:px-2">
+                          <div className="inline-flex gap-2">
+                            <button
+                              onClick={() => moveProject(index, 'up')}
+                              disabled={index === 0 || submitting}
+                              className="px-3 py-1 border border-[#e5e5e5] rounded-md hover:bg-gray-50 disabled:opacity-50"
+                            >
+                              ↑
+                            </button>
+                            <button
+                              onClick={() => moveProject(index, 'down')}
+                              disabled={index === projects.length - 1 || submitting}
+                              className="px-3 py-1 border border-[#e5e5e5] rounded-md hover:bg-gray-50 disabled:opacity-50"
+                            >
+                              ↓
+                            </button>
+                          </div>
+                        </td>
+                      )}
                       <td className="py-3 px-4 text-right max-[499px]:py-2 max-[499px]:px-2">
-                        <button
-                          onClick={() => handleDelete(project.id)}
-                          className="text-red-600 hover:text-red-800 text-base max-[499px]:text-[17px]"
-                        >
-                          Удалить
-                        </button>
+                        {!isEditingOrder && (
+                          <button
+                            onClick={() => handleDelete(project.id)}
+                            className="text-red-600 hover:text-red-800 text-base max-[499px]:text-[17px]"
+                          >
+                            Удалить
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
