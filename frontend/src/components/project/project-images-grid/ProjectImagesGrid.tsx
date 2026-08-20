@@ -3,9 +3,10 @@ type ProjectImagesGridProps = {
   projectTitle: string;
   getImgName: (url: string) => string;
   onSelect: (index: number) => void;
+  hideImgNames: boolean;
 };
 
-export default function ProjectImagesGrid({ images, projectTitle, getImgName, onSelect }: ProjectImagesGridProps) {
+export default function ProjectImagesGrid({ images, projectTitle, getImgName, onSelect, hideImgNames }: ProjectImagesGridProps) {
   return <div className="flex flex-wrap justify-center gap-5 mt-4">
     {images.map((url, index) => (
       <button
@@ -19,10 +20,14 @@ export default function ProjectImagesGrid({ images, projectTitle, getImgName, on
           alt={`${projectTitle} ${index + 1}`}
           className="w-full h-full object-cover transition-shadow group-hover:shadow-md"
         />
-        <span className="absolute inset-0 bg-gray-500/40 opacity-0 transition-opacity group-hover:opacity-100" />
-        <span className="absolute bottom-0 left-1/2 w-full -translate-x-1/2 bg-black/60 px-2 py-2 text-center text-sm leading-tight text-white opacity-0 transition-opacity group-hover:opacity-100 break-words">
-          {getImgName(url)}
-        </span>
+        {!hideImgNames &&
+          <>
+          <span className="absolute inset-0 bg-gray-500/40 opacity-0 transition-opacity group-hover:opacity-100" />
+          <span className="absolute bottom-0 left-1/2 w-full -translate-x-1/2 bg-black/60 px-2 py-2 text-center text-sm leading-tight text-white opacity-0 transition-opacity group-hover:opacity-100 break-words">
+            {getImgName(url)}
+          </span>
+          </>
+        }
       </button>
     ))}
   </div>;

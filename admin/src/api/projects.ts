@@ -4,6 +4,7 @@ export interface Project {
   id: number;
   title: string;
   imgPaths: string[];
+  hideImgNames: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -18,16 +19,16 @@ export const getProject = (id: number) =>
     method: 'GET',
   });
 
-export const createProject = (title: string) =>
+export const createProject = (title: string, hideImgNames: boolean) =>
   fetch('/projects', {
     method: 'POST',
-    body: JSON.stringify({ title }),
+    body: JSON.stringify({ title, hideImgNames }),
   });
 
-export const updateProject = (id: number, title: string) =>
+export const updateProject = (id: number, title: string, hideImgNames?: boolean) =>
   fetch(`/projects/${id}`, {
     method: 'PUT',
-    body: JSON.stringify({ title }),
+    body: JSON.stringify({ title, hideImgNames }),
   });
 
 export const deleteProject = (id: number) =>

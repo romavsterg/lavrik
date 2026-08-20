@@ -102,6 +102,7 @@ export default function Project() {
           projectTitle={project.title}
           getImgName={getImgName}
           onSelect={setSelectedImageIndex}
+          hideImgNames={project.hideImgNames}
         />
 
         {images.length > imagesLimit && (
@@ -125,6 +126,7 @@ export default function Project() {
         onClose={() => setSelectedImageIndex(null)}
         onPrev={showPrevImage}
         onNext={showNextImage}
+        hideImgName={project.hideImgNames}
       />
     )}
   </main>;

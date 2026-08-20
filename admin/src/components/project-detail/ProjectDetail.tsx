@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   getProject,
@@ -30,6 +30,7 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
   const [editingImageKey, setEditingImageKey] = useState<string | null>(null);
   const [editingImageName, setEditingImageName] = useState('');
   const [renamingImageKey, setRenamingImageKey] = useState<string | null>(null);
+  const [deletingImageKey, setDeletingImageKey] = useState<string | null>(null);
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
@@ -119,6 +120,22 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
     }
   };
 
+  const handleHideImgNamesUpdate = async () => {
+    if (!project) return;
+    setError('');
+
+    try {
+      await updateProject(project.id, editingTitle.trim(), !project.hideImgNames);
+      setProject((prev) => prev ? { ...prev, hideImgNames: !prev.hideImgNames } : null);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Ошибка обновления опции показа названий изображений');
+      }
+    }
+  };
+
   const handleUpload = async () => {
     const file = fileInputRef.current?.files?.[0];
     if (!file) return;
@@ -133,23 +150,21 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
 
     try {
       const key = `projects/${projectId}/${Date.now()}-${file.name}`;
-      const { url } = await getUploadUrl(key, file.type);
+      // const { url } = await getUploadUrl(key, file.type);
 
-      await fetch(url, {
-        method: 'PUT',
-        body: file,
-        headers: {
-          'Content-Type': file.type,
-        },
-      });
+      // await fetch(url, {
+      //   method: 'PUT',
+      //   body: file,
+      //   headers: {
+      //     'Content-Type': file.type,
+      //   },
+      // });
 
       await addImage(projectId, key);
       
       project?.imgPaths.push(key);
       
       await loadImages();
-
-      setShowUploadForm(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -168,6 +183,7 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
       await removeImage(projectId, key);
       await deleteFile(key);
       setImages((prev) => prev.filter((img) => img.key !== key));
+      setDeletingImageKey(null)
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -227,6 +243,7 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
   };
 
   const startImageRename = (key: string) => {
+    setDeletingImageKey(null)
     setEditingImageKey(key);
     setEditingImageName(getImgName(key));
   };
@@ -312,11 +329,22 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
           </button>
         )}
       </div>
+      
+      <div className="flex items-start gap-3 mb-6 max-[499px]:mb-4 max-[499px]:gap-2 max-[499px]:flex-col max-[499px]:items-stretch">
+        <input
+          id="hideImgNames"
+          type="checkbox"
+          checked={project.hideImgNames}
+          onChange={handleHideImgNamesUpdate}
+          className="w-6 h-6"
+        />
+        <label htmlFor="hideImgNames" className="block text-base max-[499px]:text-[17px]">Скрывать названия изображений</label>
+      </div>
 
       {error && <p className="text-red-600 text-sm mb-4 max-[499px]:text-base">{error}</p>}
 
       <div className="mb-6">
-          <div className="flex items-center justify-between mb-4 max-[499px]:mb-3 max-[499px]:flex-col max-[499px]:items-stretch max-[499px]:gap-2">
+          <div className="flex items-center justify-between mb-4 max-[499px]:mb-3 max-[499px]:flex-col max-[499px]:items-stretch max-[499px]:gap-2 sticky top-0 py-4 bg-white z-10">
             <h3 className="text-xl font-medium max-[499px]:text-2xl">Изображения</h3>
             <div className="flex items-center gap-2 max-[499px]:flex-col max-[499px]:items-stretch">
               {isEditingImagesOrder ? (
@@ -326,7 +354,7 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
                     disabled={savingImagesOrder}
                     className="px-5 py-2.5 bg-[#1a1a1a] text-white border border-[#1a1a1a] rounded-md hover:bg-[#333] disabled:opacity-50 text-base max-[499px]:px-4 max-[499px]:py-2 max-[499px]:text-[17px]"
                   >
-                    {savingImagesOrder ? 'Сохранение...' : 'Сохранить'}
+                    {savingImagesOrder ? 'Сохранение...' : 'Сохранить порядок'}
                   </button>
                   <button
                     onClick={handleCancelEditImagesOrder}
@@ -379,9 +407,13 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
         {images.length === 0 ? (
           <p className="text-gray-500">Нет изображений</p>
         ) : (
-          <div className="grid grid-cols-2 gap-4 max-[499px]:grid-cols-1 max-[499px]:gap-3">
+          <div className={`grid ${isEditingImagesOrder ? 'grid-cols-1' : 'grid-cols-2'} gap-4 mt-8 max-[499px]:grid-cols-1 max-[499px]:gap-3`}>
             {images.map((img, index) => (
-              <div key={img.key} className="border border-[#e5e5e5] rounded-md overflow-hidden bg-white">
+              <div key={img.key} className={`relative border w-full max-w-101.25 ml-auto mr-auto ${editingImageKey === img.key ? 'border-#a5a5a5' : (index === 0 ? 'border-#8b0000' : 'border-[#e5e5e5]')} rounded-md bg-white`}>
+                {index === 0 && 
+                  <span className='absolute z-0 text-black/60' style={{top: '-25px', left: '50%', transform: 'translateX(-50%)'} as CSSProperties}>Обложка проекта</span>
+                }
+                
                 {img.url ? (
                   <img src={img.url} alt="" className="w-full h-52 object-cover max-[499px]:h-48" />
                 ) : (
@@ -456,12 +488,30 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
                         </button>
                       )}
 
-                      <button
-                        onClick={() => handleDeleteImage(img.key)}
-                        className="text-red-600 hover:text-red-800 text-sm max-[499px]:text-base"
-                      >
-                        Удалить
-                      </button>
+                      {deletingImageKey === img.key ? (
+                        <>
+                          <button
+                            onClick={() => setDeletingImageKey(null)}
+                            className="text-gray-600 hover:text-gray-800 text-sm max-[499px]:text-base"
+                          >
+                            Отмена
+                          </button>
+                          <button
+                            onClick={() => handleDeleteImage(img.key)}
+                            className="text-red-600 hover:text-red-800 text-sm max-[499px]:text-base"
+                          >
+                            Подтвердить удаление
+                          </button>
+                        </>
+                        ) : (
+                          <button
+                          onClick={() => {setEditingImageKey(null); setDeletingImageKey(img.key)}}
+                          className="text-red-600 hover:text-red-800 text-sm max-[499px]:text-base"
+                          >
+                            Удалить
+                          </button>
+                        )
+                      }
                     </div>
                   )}
                 </div>

@@ -14,8 +14,10 @@ export default function ProjectsManager() {
   const [error, setError] = useState('');
   const [view, setView] = useState<'list' | 'create'>('list');
   const [title, setTitle] = useState('');
+  const [hideImgNames, setHideImgNames] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [isEditingOrder, setIsEditingOrder] = useState(false);
+  const [deletingProjectId, setDeletingProjectId] = useState<number | null>(null);
   const [initialProjectsOrder, setInitialProjectsOrder] = useState<Project[]>([]);
 
   const loadProjects = async () => {
@@ -44,7 +46,7 @@ export default function ProjectsManager() {
     setError('');
 
     try {
-      await createProject(title);
+      await createProject(title, hideImgNames);
       setTitle('');
       setView('list');
       await loadProjects();
@@ -135,7 +137,7 @@ export default function ProjectsManager() {
 
       {view === 'list' && (
         <div>
-          <div className="mb-5 flex gap-2 max-[499px]:mb-4 max-[499px]:flex-col">
+          <div className="mb-5 flex gap-2 max-[499px]:mb-4 max-[499px]:flex-col sticky top-0 bg-white py-4">
             {!isEditingOrder ? (
               <>
                 <button
@@ -219,14 +221,31 @@ export default function ProjectsManager() {
                           </div>
                         </td>
                       )}
-                      <td className="py-3 px-4 text-right max-[499px]:py-2 max-[499px]:px-2">
+                      <td className="py-3 text-right max-[499px]:py-2 w-80">
                         {!isEditingOrder && (
-                          <button
-                            onClick={() => handleDelete(project.id)}
-                            className="text-red-600 hover:text-red-800 text-base max-[499px]:text-[17px]"
-                          >
-                            Удалить
-                          </button>
+                          deletingProjectId === project.id ? (
+                            <>
+                              <button
+                                onClick={() => handleDelete(project.id)}
+                                className="text-red-600 hover:text-red-800 text-base max-[499px]:text-[17px] mr-4"
+                              >
+                                Подтвердить удаление
+                              </button>
+                              <button
+                                onClick={() => setDeletingProjectId(null)}
+                                className="text-gray-600 hover:text-gray-800 text-base max-[499px]:text-[17px]"
+                              >
+                                Отмена
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              onClick={() => setDeletingProjectId(project.id)}
+                              className="text-red-600 hover:text-red-800 text-base max-[499px]:text-[17px]"
+                            >
+                              Удалить
+                            </button>
+                          )
                         )}
                       </td>
                     </tr>
@@ -241,14 +260,25 @@ export default function ProjectsManager() {
       {view === 'create' && (
         <form onSubmit={handleCreate} className="flex flex-col gap-4 max-[499px]:gap-3">
           <div>
-            <label className="block text-base mb-1 max-[499px]:text-[17px]">Название</label>
+            <label htmlFor="title" className="block text-base mb-1 max-[499px]:text-[17px]">Название</label>
             <input
               type="text"
+              id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
               className="w-full px-4 py-3 border border-[#e5e5e5] rounded-md text-base max-[499px]:px-3 max-[499px]:py-2 max-[499px]:text-[17px]"
             />
+          </div>
+          <div className='flex justify-start items-center gap-2'>
+            <input
+              id="hideImgNames"
+              type="checkbox"
+              checked={hideImgNames}
+              onChange={() => setHideImgNames(prev => !prev)}
+              className="w-6 h-6"
+            />
+            <label htmlFor="hideImgNames" className="block text-base max-[499px]:text-[17px]">Скрывать названия изображений</label>
           </div>
           <div className="flex gap-2 mt-2 max-[499px]:mt-1 max-[499px]:flex-col">
             <button

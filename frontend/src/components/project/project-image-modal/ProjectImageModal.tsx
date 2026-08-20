@@ -6,9 +6,10 @@ type ProjectImageModalProps = {
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
+  hideImgName: boolean;
 };
 
-export default function ProjectImageModal({ imageUrl, imageName, onClose, onPrev, onNext }: ProjectImageModalProps) {
+export default function ProjectImageModal({ imageUrl, imageName, onClose, onPrev, onNext, hideImgName }: ProjectImageModalProps) {
   const [isBackgroundVisible, setIsBackgroundVisible] = useState(false);
 
   useEffect(() => {
@@ -30,7 +31,7 @@ export default function ProjectImageModal({ imageUrl, imageName, onClose, onPrev
         event.stopPropagation();
         onClose();
       }}
-      className="absolute right-3 sm:right-6 top-3 sm:top-6 h-10 w-10 rounded-full border border-black/25 bg-white/90 text-2xl leading-none text-black hover:bg-white"
+      className="absolute right-3 sm:right-6 top-3 sm:top-6 h-10 w-10 rounded-full border border-black/15 bg-white/90 text-2xl leading-none text-black/60 hover:bg-white"
       aria-label="Закрыть"
     >
       ×
@@ -41,7 +42,7 @@ export default function ProjectImageModal({ imageUrl, imageName, onClose, onPrev
         event.stopPropagation();
         onPrev();
       }}
-      className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 h-10 w-10 sm:h-12 sm:w-12 rounded-full border border-black/25 bg-white/90 text-2xl sm:text-3xl leading-none text-black hover:bg-white"
+      className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 h-10 w-10 sm:h-12 sm:w-12 rounded-full border border-black/15 bg-white/90 text-2xl sm:text-3xl leading-none text-black/60 hover:bg-white"
       aria-label="Предыдущее изображение"
     >
       ‹
@@ -53,9 +54,11 @@ export default function ProjectImageModal({ imageUrl, imageName, onClose, onPrev
         alt="Увеличенное изображение"
         className="!max-w-[95vw] max-h-[80vh] sm:max-h-[97.5vh] w-auto h-auto object-contain shadow-[0_20px_70px_rgba(0,0,0,0.45)]"
       />
-      <p className="m-0 max-w-[95vw] text-center text-black break-words">
-        {imageName}
-      </p>
+      {!hideImgName &&
+        <p className="m-0 max-w-[95vw] text-center text-black break-words">
+          {imageName}
+        </p>
+      }
     </div>
 
     <button
@@ -63,7 +66,7 @@ export default function ProjectImageModal({ imageUrl, imageName, onClose, onPrev
         event.stopPropagation();
         onNext();
       }}
-      className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 h-10 w-10 sm:h-12 sm:w-12 rounded-full border border-black/25 bg-white/90 text-2xl sm:text-3xl leading-none text-black hover:bg-white"
+      className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 h-10 w-10 sm:h-12 sm:w-12 rounded-full border border-black/15 bg-white/90 text-2xl sm:text-3xl leading-none text-black/60 hover:bg-white"
       aria-label="Следующее изображение"
     >
       ›

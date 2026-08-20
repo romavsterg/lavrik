@@ -7,7 +7,6 @@ import {
   Param,
   Post,
   Put,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
@@ -27,15 +26,16 @@ export class ProjectsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  create(@Body('title') title: string) {
-    return this.projectsService.create(title);
+  create(
+    @Body('title') title: string,
+    @Body('hideImgNames') hideImgNames: boolean,
+  ) {
+    return this.projectsService.create(title, hideImgNames);
   }
 
   @Get()
-  findPublic(@Query('limit') limit?: string, @Query('page') page?: string) {
-    const lim = limit ? Number(limit) : 6;
-    const p = page ? Number(page) : 1;
-    return this.projectsService.findPublicPage(lim, p);
+  findPublic() {
+    return this.projectsService.findPublicPage();
   }
 
   @Get(':id')
@@ -51,8 +51,12 @@ export class ProjectsController {
 
   @Put(':id')
   @UseGuards(AuthGuard)
-  update(@Param('id') id: string, @Body('title') title: string) {
-    return this.projectsService.update(Number(id), title);
+  update(
+    @Param('id') id: string,
+    @Body('title') title: string,
+    @Body('hideImgNames') hideImgNames?: boolean,
+  ) {
+    return this.projectsService.update(Number(id), title, hideImgNames);
   }
 
   @Post(':id/images')

@@ -12,7 +12,7 @@ export class ProjectsService {
     private readonly s3Service: S3Service,
   ) {}
 
-  async create(title: string) {
+  async create(title: string, hideImgNames: boolean) {
     const [lastProject] = await this.repository.find({
       order: {
         sortOrder: 'DESC',
@@ -22,6 +22,7 @@ export class ProjectsService {
 
     return this.repository.save({
       title,
+      hideImgNames,
       imgPaths: [],
       sortOrder: (lastProject?.sortOrder ?? -1) + 1,
     });
@@ -36,16 +37,12 @@ export class ProjectsService {
     });
   }
 
-  async findPublicPage(limit = 6, page = 1) {
-    const skip = (page - 1) * limit;
-
-    const [projects, total] = await this.repository.findAndCount({
+  async findPublicPage() {
+    const projects = await this.repository.find({
       order: {
         sortOrder: 'ASC',
         updatedAt: 'DESC',
       },
-      skip,
-      take: limit,
     });
 
     const items = await Promise.all(
@@ -66,10 +63,6 @@ export class ProjectsService {
 
     return {
       items,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
     };
   }
 
@@ -90,8 +83,8 @@ export class ProjectsService {
     return urls.map((result) => result.url);
   }
 
-  update(id: number, title: string) {
-    return this.repository.update(id, { title });
+  update(id: number, title: string, hideImgNames?: boolean) {
+    return this.repository.update(id, { title, hideImgNames });
   }
 
   async addImage(id: number, key: string) {

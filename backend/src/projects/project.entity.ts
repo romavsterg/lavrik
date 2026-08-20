@@ -14,6 +14,9 @@ export class ProjectEntity {
   @Column()
   title!: string;
 
+  @Column()
+  hideImgNames!: boolean;
+
   @Column('simple-array')
   imgPaths!: string[];
 

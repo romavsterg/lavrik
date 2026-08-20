@@ -15,7 +15,10 @@ export class AuthService {
     const adminUsername = this.configService.get<string>('ADMIN_USERNAME');
     const adminPassword = this.configService.get<string>('ADMIN_PASSWORD');
 
-    return username === adminUsername && password === adminPassword;
+    return (
+      username.toLowerCase() === adminUsername?.toLocaleLowerCase() &&
+      password === adminPassword
+    );
   }
 
   generateToken(username: string): string {
