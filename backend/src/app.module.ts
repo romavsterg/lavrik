@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { ProjectsModule } from './projects/projects.module';
 import { S3Module } from './s3/s3.module';
+import { join } from 'node:path';
 
 @Module({
   imports: [
@@ -15,8 +16,11 @@ import { S3Module } from './s3/s3.module';
       database: process.env.SQLITE_PATH ?? 'db/database.sqlite',
 
       synchronize:
-        process.env.TYPEORM_SYNCHRONIZE === 'true' ||
-        process.env.NODE_ENV !== 'production',
+        process.env.NODE_ENV !== 'production' &&
+        process.env.TYPEORM_SYNCHRONIZE !== 'false',
+
+      migrationsRun: process.env.NODE_ENV === 'production',
+      migrations: [join(__dirname, 'migrations/*{.ts,.js}')],
 
       autoLoadEntities: true,
     }),

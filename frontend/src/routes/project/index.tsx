@@ -64,19 +64,23 @@ export default function Project() {
   }, []);
 
   const showPrevImage = () => {
-    if (selectedImageIndex === null || modalImages.length === 0) {
-      return;
-    }
+    setSelectedImageIndex((prevIndex) => {
+      if (prevIndex === null || modalImages.length === 0) {
+        return prevIndex;
+      }
 
-    setSelectedImageIndex(selectedImageIndex === 0 ? modalImages.length - 1 : selectedImageIndex - 1);
+      return prevIndex === 0 ? modalImages.length - 1 : prevIndex - 1;
+    });
   };
 
   const showNextImage = () => {
-    if (selectedImageIndex === null || modalImages.length === 0) {
-      return;
-    }
+    setSelectedImageIndex((prevIndex) => {
+      if (prevIndex === null || modalImages.length === 0) {
+        return prevIndex;
+      }
 
-    setSelectedImageIndex(selectedImageIndex === modalImages.length - 1 ? 0 : selectedImageIndex + 1);
+      return prevIndex === modalImages.length - 1 ? 0 : prevIndex + 1;
+    });
   };
 
   const getImgName = (url: string) => {
@@ -122,6 +126,8 @@ export default function Project() {
     {selectedImageIndex !== null && (
       <ProjectImageModal
         imageUrl={modalImages[selectedImageIndex]}
+        prevImageUrl={modalImages[selectedImageIndex === 0 ? modalImages.length - 1 : selectedImageIndex - 1]}
+        nextImageUrl={modalImages[selectedImageIndex === modalImages.length - 1 ? 0 : selectedImageIndex + 1]}
         imageName={getImgName(modalImages[selectedImageIndex]) ?? ''}
         onClose={() => setSelectedImageIndex(null)}
         onPrev={showPrevImage}

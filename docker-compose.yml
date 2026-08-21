@@ -21,7 +21,7 @@ services:
       - ./backend/.env
     environment:
       - NODE_ENV=production
-      - TYPEORM_SYNCHRONIZE=true
+      - TYPEORM_SYNCHRONIZE=false
     volumes:
       - ./backend/db:/app/db
 

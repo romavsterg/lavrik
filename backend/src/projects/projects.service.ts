@@ -87,10 +87,12 @@ export class ProjectsService {
     return this.repository.update(id, { title, hideImgNames });
   }
 
-  async addImage(id: number, key: string) {
+  async addImage(id: number, keys: string[]) {
     const project = await this.repository.findOneBy({ id });
     if (!project) return null;
-    const newPaths = [...(project.imgPaths || []), key];
+
+    const newPaths = [...(project.imgPaths || []), ...keys];
+
     return this.repository.update(id, { imgPaths: newPaths });
   }
 

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   getProject,
   updateProject,
-  addImage,
+  addImages,
   removeImage,
   renameImage,
   changeProjectImagesOrder,
@@ -137,10 +137,10 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
   };
 
   const handleUpload = async () => {
-    const file = fileInputRef.current?.files?.[0];
-    if (!file) return;
+    const files = Array.from(fileInputRef.current?.files || []);
+    if (!files.length) return;
 
-    if (!file.type.startsWith('image/')) {
+    if (files.some((file) => !file.type.startsWith('image/'))) {
       setUploadError('Можно загружать только изображения');
       return;
     }
@@ -149,21 +149,25 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
     setUploadError('');
 
     try {
-      const key = `projects/${projectId}/${Date.now()}-${file.name}`;
-      // const { url } = await getUploadUrl(key, file.type);
+      const keys = await Promise.all(files.map(async (file, index) => {
+        const key = `projects/${projectId}/${Date.now()}-${index}-${file.name}`;
+        const { url } = await getUploadUrl(key, file.type);
 
-      // await fetch(url, {
-      //   method: 'PUT',
-      //   body: file,
-      //   headers: {
-      //     'Content-Type': file.type,
-      //   },
-      // });
+        await fetch(url, {
+          method: 'PUT',
+          body: file,
+          headers: {
+            'Content-Type': file.type,
+          },
+        });
 
-      await addImage(projectId, key);
-      
-      project?.imgPaths.push(key);
-      
+        return key;
+      }));
+
+      await addImages(projectId, keys);
+
+      project?.imgPaths.push(...keys);
+
       await loadImages();
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -389,6 +393,7 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
             <input
               ref={fileInputRef}
               type="file"
+              multiple
               accept="image/*"
               onChange={() => setUploadError('')}
               className="w-full px-3 py-2 border border-[#e5e5e5] rounded mb-3 text-base max-[499px]:mb-2 max-[499px]:text-[17px]"
@@ -398,7 +403,7 @@ export default function ProjectDetail({ projectId }: { projectId: number }) {
               disabled={uploading}
               className="px-4 py-2 bg-[#1a1a1a] text-white border border-[#1a1a1a] rounded hover:bg-[#333] disabled:opacity-50 text-base max-[499px]:px-3 max-[499px]:py-2 max-[499px]:text-[17px]"
             >
-              {uploading ? 'Загрузка...' : 'Загрузить'}
+              {uploading ? 'Загрузка...' : 'Загрузить изображения'}
             </button>
             {uploadError && <p className="text-red-600 text-sm mt-3 max-[499px]:text-base">{uploadError}</p>}
           </div>

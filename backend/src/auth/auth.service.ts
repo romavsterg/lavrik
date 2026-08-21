@@ -4,6 +4,7 @@ import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
+  private readonly keyLength = 64;
   private readonly tokens = new Map<
     string,
     { username: string; expiresAt: Date }
@@ -13,11 +14,41 @@ export class AuthService {
 
   validateCredentials(username: string, password: string): boolean {
     const adminUsername = this.configService.get<string>('ADMIN_USERNAME');
+    const adminPasswordHash = this.configService.get<string>(
+      'ADMIN_PASSWORD_HASH',
+    );
     const adminPassword = this.configService.get<string>('ADMIN_PASSWORD');
+
+    let isPasswordValid = false;
+
+    if (adminPasswordHash) {
+      const [salt, expectedHash] = adminPasswordHash.trim().split(':');
+
+      if (!salt || !expectedHash) {
+        return false;
+      }
+
+      const actualHash = crypto
+        .scryptSync(password, salt, this.keyLength)
+        .toString('hex');
+
+      const expectedBuffer = Buffer.from(expectedHash, 'hex');
+      const actualBuffer = Buffer.from(actualHash, 'hex');
+
+      if (expectedBuffer.length !== actualBuffer.length) {
+        return false;
+      }
+
+      isPasswordValid = crypto.timingSafeEqual(expectedBuffer, actualBuffer);
+    } else if (adminPassword) {
+      isPasswordValid = password === adminPassword;
+    } else {
+      return false;
+    }
 
     return (
       username.toLowerCase() === adminUsername?.toLocaleLowerCase() &&
-      password === adminPassword
+      isPasswordValid
     );
   }
 

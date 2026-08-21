@@ -25,7 +25,7 @@ export default function Portfolio() {
     {loading ? (
       <p className="m-0 mb-4 text-[#333]">Загрузка...</p>
     ) : (
-      <div className="grid gap-5 mt-6 grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
+      <div className={`mt-6 ${projects.length > 1 ? 'grid gap-5 grid-cols-[repeat(auto-fit,minmax(240px,1fr))]' : 'flex justify-center'}`}>
         {projects.map((project) => (
           <ProjectCard key={project.id} project={project} />
         ))}

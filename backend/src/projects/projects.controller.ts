@@ -20,6 +20,11 @@ type ChangeImagesOrderBody = {
   imageKeys: string[];
 };
 
+type AddImagesBody = {
+  key?: string;
+  keys?: string[];
+};
+
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
@@ -61,8 +66,14 @@ export class ProjectsController {
 
   @Post(':id/images')
   @UseGuards(AuthGuard)
-  addImage(@Param('id') id: string, @Body('key') key: string) {
-    return this.projectsService.addImage(Number(id), key);
+  addImage(@Param('id') id: string, @Body() body: AddImagesBody) {
+    const imageKeys = body.keys?.length ? body.keys : body.key ? [body.key] : [];
+
+    if (!imageKeys.length) {
+      throw new BadRequestException('key or keys is required');
+    }
+
+    return this.projectsService.addImage(Number(id), imageKeys);
   }
 
   @Post('change-order')

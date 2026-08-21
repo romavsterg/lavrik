@@ -48,10 +48,10 @@ export const changeProjectImagesOrder = (id: number, imageKeys: string[]) =>
     body: JSON.stringify({ imageKeys }),
   });
 
-export const addImage = (id: number, key: string) =>
+export const addImages = (id: number, keys: string[]) =>
   fetch(`/projects/${id}/images`, {
     method: 'POST',
-    body: JSON.stringify({ key }),
+    body: JSON.stringify({ keys }),
   });
 
 export const removeImage = (id: number, key: string) =>

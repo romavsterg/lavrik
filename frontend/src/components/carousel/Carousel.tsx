@@ -1,22 +1,29 @@
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 const IMG_COUNT = 9;
 const images = Array.from({ length: IMG_COUNT }, (_, i) => i + 1);
 const GAP = 8;
+const SWIPE_THRESHOLD = 50;
+const WHEEL_COOLDOWN = 350;
 
 const Carousel = () => {
   const [current, setCurrent] = useState(IMG_COUNT);
   const [isAnimating, setIsAnimating] = useState(false);
   const [translateX, setTranslateX] = useState(0);
+  const [dragOffset, setDragOffset] = useState(0);
   const [measureVersion, setMeasureVersion] = useState(0);
 
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const slideRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const dragStartXRef = useRef(0);
+  const isDraggingRef = useRef(false);
+  const wheelLockRef = useRef(false);
+  const wheelTimeoutRef = useRef<number | null>(null);
 
   const trackImages = useMemo(() => [...images, ...images, ...images], []);
 
   const prev = () => {
-    if (isAnimating) {
+    if (isAnimating || isDraggingRef.current) {
       return;
     }
 
@@ -25,7 +32,7 @@ const Carousel = () => {
   };
 
   const next = () => {
-    if (isAnimating) {
+    if (isAnimating || isDraggingRef.current) {
       return;
     }
 
@@ -68,11 +75,106 @@ const Carousel = () => {
     }
   };
 
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) {
+      return;
+    }
+
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault();
+
+      if (wheelLockRef.current || isAnimating || isDraggingRef.current) {
+        return;
+      }
+
+      const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+      if (Math.abs(delta) < 10) {
+        return;
+      }
+
+      wheelLockRef.current = true;
+      if (wheelTimeoutRef.current) {
+        window.clearTimeout(wheelTimeoutRef.current);
+      }
+
+      wheelTimeoutRef.current = window.setTimeout(() => {
+        wheelLockRef.current = false;
+      }, WHEEL_COOLDOWN);
+
+      setIsAnimating(true);
+      setCurrent((prevIndex) => prevIndex + (delta > 0 ? 1 : -1));
+    };
+
+    viewport.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      viewport.removeEventListener('wheel', handleWheel);
+      if (wheelTimeoutRef.current) {
+        window.clearTimeout(wheelTimeoutRef.current);
+      }
+    };
+  }, [isAnimating]);
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) {
+      return;
+    }
+
+    if (isAnimating) {
+      return;
+    }
+
+    isDraggingRef.current = true;
+    dragStartXRef.current = event.clientX;
+    setDragOffset(0);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current) {
+      return;
+    }
+
+    setDragOffset(event.clientX - dragStartXRef.current);
+  };
+
+  const handlePointerEnd = () => {
+    if (!isDraggingRef.current) {
+      return;
+    }
+
+    const offset = dragOffset;
+    isDraggingRef.current = false;
+    setDragOffset(0);
+
+    const swipeThreshold = Math.max(24, Math.min(SWIPE_THRESHOLD, (viewportRef.current?.clientWidth ?? 0) * 0.08));
+
+    if (Math.abs(offset) < swipeThreshold) {
+      return;
+    }
+
+    if (offset < 0) {
+      next();
+      return;
+    }
+
+    prev();
+  };
+
   return (
-    <div className="relative w-full overflow-hidden" ref={viewportRef}>
+    <div
+      className="relative w-full overflow-hidden overscroll-none cursor-grab active:cursor-grabbing select-none touch-pan-y"
+      ref={viewportRef}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerEnd}
+      onPointerCancel={handlePointerEnd}
+      onLostPointerCapture={handlePointerEnd}
+    >
       <div
         className={`flex items-center ${isAnimating ? 'transition-transform duration-500 ease-in-out' : ''}`}
-        style={{ transform: `translateX(${translateX}px)`, gap: `${GAP}px` }}
+        style={{ transform: `translateX(${translateX + dragOffset}px)`, gap: `${GAP}px` }}
         onTransitionEnd={handleTransitionEnd}
       >
         {trackImages.map((num, idx) => (
@@ -87,6 +189,7 @@ const Carousel = () => {
               src={`mainCarousel/${num}.jpg`}
               alt={`Слайд ${num}`}
               className="h-[calc(74vh-50px)] sm:h-[453px] w-auto max-w-none object-contain"
+              draggable={false}
               onLoad={() => setMeasureVersion(version => version + 1)}
             />
           </div>

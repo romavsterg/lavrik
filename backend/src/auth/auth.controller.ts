@@ -12,7 +12,7 @@ import type { Response, Request, CookieOptions } from 'express';
 
 const authCookieOptions: CookieOptions = {
   httpOnly: true,
-  sameSite: 'lax',
+  sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
   secure: process.env.NODE_ENV === 'production',
   path: '/',
   maxAge: 24 * 60 * 60 * 1000,
@@ -20,7 +20,7 @@ const authCookieOptions: CookieOptions = {
 
 const clearAuthCookieOptions: CookieOptions = {
   httpOnly: true,
-  sameSite: 'lax',
+  sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
   secure: process.env.NODE_ENV === 'production',
   path: '/',
 };

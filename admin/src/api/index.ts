@@ -9,7 +9,7 @@ export {
   deleteProject,
   changeProjectsOrder,
   changeProjectImagesOrder,
-  addImage,
+  addImages,
   removeImage,
   renameImage,
   type Project,
