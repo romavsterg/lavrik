@@ -1,6 +1,11 @@
+import { useEffect } from 'react';
 import Carousel from '../../components/carousel';
 
 export default function Home() {
+  useEffect(() => {
+    document.title = 'Наталья Лаврик';
+  }, []);
+
   return <main className="px-4 sm:px-6 max-w-[960px] mx-auto py-6">
     <section className="mt-3 relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen">
       <Carousel />

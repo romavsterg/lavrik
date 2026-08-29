@@ -8,6 +8,10 @@ export default function Portfolio() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    document.title = 'Наталья Лаврик | Проекты';
+  }, []);
+
+  useEffect(() => {
     const load = async () => {
       try {
         const data = await getProjects(100, 1);

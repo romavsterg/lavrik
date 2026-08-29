@@ -1,6 +1,11 @@
+import { useEffect } from 'react';
 import './cv.css';
 
 export default function CV() {
+  useEffect(() => {
+    document.title = 'Наталья Лаврик | Резюме';
+  }, []);
+
   return <div className="cv-page">
     <h2 className="font-thin text-center">Наталья Лаврик</h2>
     <div className="cv-content">

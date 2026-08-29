@@ -4,9 +4,10 @@ type ProjectImagesGridProps = {
   getImgName: (url: string) => string;
   onSelect: (index: number) => void;
   hideImgNames: boolean;
+  onImageLoad?: (index: number) => void;
 };
 
-export default function ProjectImagesGrid({ images, projectTitle, getImgName, onSelect, hideImgNames }: ProjectImagesGridProps) {
+export default function ProjectImagesGrid({ images, projectTitle, getImgName, onSelect, hideImgNames, onImageLoad }: ProjectImagesGridProps) {
   return <div className="flex flex-wrap justify-center gap-5 mt-4">
     {images.map((url, index) => (
       <button
@@ -19,6 +20,7 @@ export default function ProjectImagesGrid({ images, projectTitle, getImgName, on
           src={url}
           alt={`${projectTitle} ${index + 1}`}
           className="w-full h-full object-cover transition-shadow group-hover:shadow-md"
+          onLoad={() => onImageLoad?.(index)}
         />
         {!hideImgNames &&
           <>
