@@ -111,24 +111,6 @@ export default function Project() {
     queuePreloadFrom(visibleCountRef.current);
   }, [isInitialBatchLoaded]);
 
-  const revealNextBatch = () => {
-    setVisibleCount((prevCount) => {
-      if (prevCount >= images.length) {
-        return prevCount;
-      }
-
-      const revealTo = preloadedCountRef.current > prevCount
-        ? preloadedCountRef.current
-        : Math.min(images.length, prevCount + LAZY_BATCH_SIZE);
-
-      if (revealTo > prevCount) {
-        queuePreloadFrom(revealTo);
-      }
-
-      return revealTo;
-    });
-  };
-
   const handleGridImageLoad = (index: number) => {
     if (index >= imagesLimit || isInitialBatchLoaded) {
       return;

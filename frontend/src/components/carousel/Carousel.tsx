@@ -12,15 +12,27 @@ const Carousel = () => {
   const [translateX, setTranslateX] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const [measureVersion, setMeasureVersion] = useState(0);
+  const [loadedSlidesCount, setLoadedSlidesCount] = useState(0);
 
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const slideRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const loadedSlidesRef = useRef<boolean[]>([]);
   const dragStartXRef = useRef(0);
   const isDraggingRef = useRef(false);
   const wheelLockRef = useRef(false);
   const wheelTimeoutRef = useRef<number | null>(null);
 
   const trackImages = useMemo(() => [...images, ...images, ...images], []);
+  const isTrackLoaded = loadedSlidesCount === trackImages.length;
+
+  const handleSlideLoaded = (index: number) => {
+    if (!loadedSlidesRef.current[index]) {
+      loadedSlidesRef.current[index] = true;
+      setLoadedSlidesCount(count => count + 1);
+    }
+
+    setMeasureVersion(version => version + 1);
+  };
 
   const prev = () => {
     if (isAnimating || isDraggingRef.current) {
@@ -190,21 +202,26 @@ const Carousel = () => {
               alt={`Слайд ${num}`}
               className="h-[calc(74vh-50px)] sm:h-[453px] w-auto max-w-none object-contain"
               draggable={false}
-              onLoad={() => setMeasureVersion(version => version + 1)}
+              onLoad={() => handleSlideLoaded(idx)}
+              onError={() => handleSlideLoaded(idx)}
             />
           </div>
         ))}
       </div>
 
+      <div
+        className={`absolute inset-0 z-10 bg-gray-200 pointer-events-none transition-opacity duration-500 ${isTrackLoaded ? 'opacity-0' : 'opacity-100'}`}
+      />
+
       <button
         onClick={prev}
-        className="absolute left-2 top-1/2 -translate-y-1/2 bg-white text-black border border-black/30 shadow-md px-2.5 sm:px-3 py-2 sm:py-2 rounded-full text-xl sm:text-2xl"
+        className="absolute left-2 top-1/2 z-20 -translate-y-1/2 bg-white text-black border border-black/30 shadow-md px-2.5 sm:px-3 py-2 sm:py-2 rounded-full text-xl sm:text-2xl"
       >
         ‹
       </button>
       <button
         onClick={next}
-        className="absolute right-2 top-1/2 -translate-y-1/2 bg-white text-black border border-black/30 shadow-md px-2.5 sm:px-3 py-2 sm:py-2 rounded-full text-xl sm:text-2xl"
+        className="absolute right-2 top-1/2 z-20 -translate-y-1/2 bg-white text-black border border-black/30 shadow-md px-2.5 sm:px-3 py-2 sm:py-2 rounded-full text-xl sm:text-2xl"
       >
         ›
       </button>
