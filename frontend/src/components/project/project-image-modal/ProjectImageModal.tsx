@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const SWIPE_THRESHOLD = 50;
 const SWIPE_THRESHOLD_MIN = 24;
@@ -9,6 +9,10 @@ const WHEEL_GESTURE_END_DELAY = 120;
 const WHEEL_LINE_STEP_INTERVAL = 55;
 const WHEEL_PIXEL_MIN_DELTA = 2;
 const WHEEL_STREAM_UNLOCK_IDLE = 90;
+
+const MIN_SCALE = 1;
+const MAX_SCALE = 3;
+const PINCH_DIST_TOLERANCE = 8;
 
 type ProjectImageModalProps = {
   imageUrl: string;
@@ -29,6 +33,7 @@ export default function ProjectImageModal({ imageUrl, prevImageUrl, nextImageUrl
   const [currentImageWidth, setCurrentImageWidth] = useState(0);
   const [previewImageWidth, setPreviewImageWidth] = useState(0);
   const [stageWidth, setStageWidth] = useState(0);
+  const [scale, setScale] = useState(1);
 
   const modalRef = useRef<HTMLDivElement | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
@@ -44,6 +49,22 @@ export default function ProjectImageModal({ imageUrl, prevImageUrl, nextImageUrl
   const wheelStreamLockedRef = useRef(false);
   const dragStartXRef = useRef(0);
   const isDraggingRef = useRef(false);
+
+  // Pinch-zoom refs
+  const pinchStartDistRef = useRef(0);
+  const pinchStartScaleRef = useRef(1);
+  const isPinchingRef = useRef(false);
+
+  const getTouchDistance = (touches: TouchList) => {
+    if (touches.length < 2) return 0;
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  useEffect(() => {
+    setScale(1);
+  }, [imageUrl]);
 
   useEffect(() => {
     const frameId = window.requestAnimationFrame(() => {
@@ -84,6 +105,8 @@ export default function ProjectImageModal({ imageUrl, prevImageUrl, nextImageUrl
     onPrevRef.current = onPrev;
     onNextRef.current = onNext;
   }, [onPrev, onNext]);
+
+  // ── Wheel nav (existing) ──
 
   useEffect(() => {
     const modal = modalRef.current;
@@ -210,7 +233,86 @@ export default function ProjectImageModal({ imageUrl, prevImageUrl, nextImageUrl
     };
   }, []);
 
+  // ── Pinch-zoom ──
+
+  const handleTouchStart = useCallback(
+    (event: React.TouchEvent<HTMLDivElement>) => {
+      // Only handle pinch (2 fingers) on the stage
+      if (event.touches.length === 2) {
+        event.stopPropagation();
+        event.preventDefault();
+        const dist = getTouchDistance(event.nativeEvent.touches);
+        if (dist < PINCH_DIST_TOLERANCE) return;
+        isPinchingRef.current = true;
+        pinchStartDistRef.current = dist;
+        pinchStartScaleRef.current = scale;
+      }
+    },
+    [scale],
+  );
+
+  const handleTouchMove = useCallback(
+    (event: React.TouchEvent<HTMLDivElement>) => {
+      // Only handle pinch (2 fingers) on the stage
+      if (event.touches.length !== 2) {
+        // If we were pinching and now it's 1 finger, reset
+        if (isPinchingRef.current) {
+          isPinchingRef.current = false;
+          pinchStartDistRef.current = 0;
+        }
+        return;
+      }
+
+      if (!isPinchingRef.current) return;
+      event.stopPropagation();
+      event.preventDefault();
+
+      const dist = getTouchDistance(event.nativeEvent.touches);
+      if (dist < PINCH_DIST_TOLERANCE) return;
+
+      const ratio = dist / pinchStartDistRef.current;
+      const newScale = Math.min(
+        MAX_SCALE,
+        Math.max(MIN_SCALE, pinchStartScaleRef.current * ratio),
+      );
+      if (Math.abs(newScale - scale) > 0.01) {
+        setScale(newScale);
+      }
+    },
+    [scale],
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    if (isPinchingRef.current) {
+      isPinchingRef.current = false;
+      pinchStartDistRef.current = 0;
+      pinchStartScaleRef.current = 1;
+    }
+  }, []);
+
+  // ── Double-click zoom ──
+
+  const handleStageDblClick = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      event.stopPropagation();
+      event.preventDefault();
+
+      if (scale > 1) {
+        setScale(1);
+      } else {
+        setScale(2);
+      }
+    },
+    [scale],
+  );
+
+  // ── Swipe (pointer events) ──
+
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    // If pinching, skip swipe
+    if (isPinchingRef.current) {
+      return;
+    }
     if (event.pointerType === 'mouse' && event.button !== 0) {
       return;
     }
@@ -298,20 +400,29 @@ export default function ProjectImageModal({ imageUrl, prevImageUrl, nextImageUrl
     </button>
 
     <div
-      className="flex flex-col items-center gap-3 cursor-grab active:cursor-grabbing select-none touch-none"
+      className="flex flex-col items-center gap-3 cursor-grab active:cursor-grabbing select-none"
       onClick={(event) => event.stopPropagation()}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerEnd}
-      onPointerCancel={handlePointerEnd}
-      onLostPointerCapture={handlePointerEnd}
     >
-      <div ref={stageRef} className="relative w-[95vw] h-[80vh] sm:h-[97.5vh] overflow-hidden">
+      <div
+        ref={stageRef}
+        className="relative w-[95vw] h-[80vh] sm:h-[97.5vh] overflow-hidden"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
+        onDoubleClick={handleStageDblClick}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerEnd}
+        onPointerCancel={handlePointerEnd}
+        onLostPointerCapture={handlePointerEnd}
+      >
         <div
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
           style={{
             opacity: 1 - previewProgress,
-            transform: `translateX(${currentTranslate}px)`,
+            transform: `translateX(${currentTranslate}px) scale(${scale})`,
+            transformOrigin: 'center center',
           }}
         >
           <img
@@ -332,7 +443,8 @@ export default function ProjectImageModal({ imageUrl, prevImageUrl, nextImageUrl
             className="absolute inset-0 flex items-center justify-center pointer-events-none"
             style={{
               opacity: previewProgress,
-              transform: `translateX(${previewTranslate}px)`,
+              transform: `translateX(${previewTranslate}px) scale(${scale})`,
+              transformOrigin: 'center center',
             }}
           >
             <img
