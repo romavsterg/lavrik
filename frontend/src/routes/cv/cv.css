@@ -30,6 +30,15 @@
   font-size: 17px;
 }
 
+.cv-content p + p {
+  margin-top: 1rem;
+}
+
+.cv-intro {
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
 @media (max-width: 400px) {
   .cv-page {
     padding: 1.5rem 1rem;
